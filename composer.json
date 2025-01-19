@@ -1,0 +1,15 @@
+{
+    "name": "shishir/backend",
+    "autoload": {
+        "psr-4": {
+            "NotesApp\\": "backend/"
+        }
+    },
+    "authors": [
+        {
+            "name": "CoffeeQuotes",
+            "email": "sky8052785942ocean@gmail.com"
+        }
+    ],
+    "require": {}
+}
