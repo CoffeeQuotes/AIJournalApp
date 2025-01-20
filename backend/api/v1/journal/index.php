@@ -1,69 +1,82 @@
 <?php 
 require_once("../../../System/requirement.php");
-
 use NotesApp\System\AppSettings;
 use NotesApp\System\Database;
+use NotesApp\System\AuthMiddleware;
 
 try {
-    // Get the singleton database instance
     $dbInstance = Database::getInstance();
-
-    // Get the PDO connection
     $pdo = $dbInstance->getConnection();
-
-    // Initialize AppSettings for consistent responses
     $appSettings = new AppSettings([
         'response_as_json' => true,
         'display_errors' => true,
     ]);
 
-    // Check the request method
+    $authMiddleware = new AuthMiddleware();
+    
+    // Authenticate first and get user ID
+    $userId = $authMiddleware->authenticate();
+    
     $method = $_SERVER['REQUEST_METHOD'];
+    $id = isset($_GET['id']) ? (int) $_GET['id'] : null;
 
     if ($method === 'GET') {
-        // Handle GET request: Fetch all journal entries
-        $stmt = $pdo->prepare("SELECT * FROM journal_entries");
-        $stmt->execute();
-        $rows = $stmt->fetchAll();
+        if ($id) {
+            // Fetch a specific journal entry by ID
+            if (!verifyJournalOwnership($userId, $id)) {
+                throw new Exception('Unauthorized to access this journal entry', 403);
+            }
+            
+            $stmt = $pdo->prepare("SELECT * FROM journal_entries WHERE id = :id AND user_id = :user_id");
+            $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $data = [
-            'data' => $rows,
-            'message' => 'Journal entries retrieved successfully!',
-            'status' => 200
-        ];
+            if ($row) {
+                $appSettings->respond([
+                    'data' => $row,
+                    'message' => 'Journal entry retrieved successfully!',
+                    'status' => 200
+                ]);
+            } else {
+                throw new Exception("Journal entry not found", 404);
+            }
+        } else {
+            // Fetch all journal entries for the authenticated user
+            $stmt = $pdo->prepare("SELECT * FROM journal_entries WHERE user_id = :user_id ORDER BY created_at DESC");
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->execute();
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $appSettings->respond($data);
-
+            $appSettings->respond([
+                'data' => $rows,
+                'message' => 'Journal entries retrieved successfully!',
+                'status' => 200
+            ]);
+        }
     } elseif ($method === 'POST') {
-        // Handle POST request: Insert a new journal entry
-
-        // Get POST input (expects JSON input)
         $input = json_decode(file_get_contents('php://input'), true);
 
-        if (!isset($input['user_id'], $input['entry_text'], $input['sentiment_score'], $input['mood'])) {
-            throw new Exception('Invalid input: user_id, entry_text, sentiment_score, and mood are required.');
+        if (!isset($input['entry_text'], $input['sentiment_score'], $input['mood'])) {
+            throw new Exception('Invalid input: entry_text, sentiment_score, and mood are required.');
         }
 
-        // Prepare the insert query
         $stmt = $pdo->prepare("
             INSERT INTO journal_entries (user_id, entry_text, sentiment_score, mood, created_at)
             VALUES (:user_id, :entry_text, :sentiment_score, :mood, NOW())
         ");
 
-        // Bind parameters
-        $stmt->bindParam(':user_id', $input['user_id'], PDO::PARAM_INT);
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
         $stmt->bindParam(':entry_text', $input['entry_text'], PDO::PARAM_STR);
         $stmt->bindParam(':sentiment_score', $input['sentiment_score'], PDO::PARAM_STR);
         $stmt->bindParam(':mood', $input['mood'], PDO::PARAM_STR);
-
-        // Execute the query
         $stmt->execute();
 
-        // Respond with success
-        $data = [
+        $appSettings->respond([
             'data' => [
                 'id' => $pdo->lastInsertId(),
-                'user_id' => $input['user_id'],
+                'user_id' => $userId,
                 'entry_text' => $input['entry_text'],
                 'sentiment_score' => $input['sentiment_score'],
                 'mood' => $input['mood'],
@@ -71,19 +84,49 @@ try {
             ],
             'message' => 'Journal entry added successfully!',
             'status' => 201
-        ];
+        ]);
 
-        $appSettings->respond($data);
+    } elseif ($method === 'DELETE' && $id) {
+        if (!verifyJournalOwnership($userId, $id)) {
+            throw new Exception('Unauthorized to delete this journal entry', 403);
+        }
 
+        $stmt = $pdo->prepare("DELETE FROM journal_entries WHERE id = :id AND user_id = :user_id");
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+
+        if ($stmt->rowCount() > 0) {
+            $appSettings->respond([
+                'message' => "Journal entry deleted successfully!",
+                'status' => 200
+            ]);
+        } else {
+            throw new Exception("Journal entry not found", 404);
+        }
     } else {
-        // Handle unsupported HTTP methods
-        throw new Exception('Unsupported request method.');
+        throw new Exception('Unsupported request method or missing ID.');
     }
 } catch (Exception $e) {
-    // Handle errors
-    $error = [
+    $status = $e->getCode();
+    // If no status code is set, default to 500
+    if (!$status || $status < 100 || $status > 599) {
+        $status = 500;
+    }
+    
+    $appSettings->respond([
         'error' => $e->getMessage(),
-        'status' => 500
-    ];
-    echo json_encode($error);
+        'status' => $status
+    ]);
+}
+
+function verifyJournalOwnership($userId, $journalId) {
+    $db = Database::getInstance();
+    $pdo = $db->getConnection();
+    
+    $stmt = $pdo->prepare("SELECT user_id FROM journal_entries WHERE id = ? AND user_id = ?");
+    $stmt->execute([$journalId, $userId]);
+    $journal = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    return $journal !== false;
 }
