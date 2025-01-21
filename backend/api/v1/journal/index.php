@@ -3,7 +3,7 @@ require_once("../../../System/requirement.php");
 use NotesApp\System\AppSettings;
 use NotesApp\System\Database;
 use NotesApp\System\AuthMiddleware;
-
+use NotesApp\System\MoodAnalyzer;
 try {
     $dbInstance = Database::getInstance();
     $pdo = $dbInstance->getConnection();
@@ -56,11 +56,15 @@ try {
             ]);
         }
     } elseif ($method === 'POST') {
+
         $input = json_decode(file_get_contents('php://input'), true);
 
-        if (!isset($input['entry_text'], $input['sentiment_score'], $input['mood'])) {
-            throw new Exception('Invalid input: entry_text, sentiment_score, and mood are required.');
+        if (!isset($input['entry_text'])) {
+            throw new Exception('Invalid input: entry_text is required.');
         }
+        $moodAnalyzer = new MoodAnalyzer();
+        $sentimentScore = $moodAnalyzer->analyzeSentiment($input['entry_text']);
+        $mood = $moodAnalyzer->mapScoreToMood($sentimentScore);
 
         $stmt = $pdo->prepare("
             INSERT INTO journal_entries (user_id, entry_text, sentiment_score, mood, created_at)
@@ -69,8 +73,14 @@ try {
 
         $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
         $stmt->bindParam(':entry_text', $input['entry_text'], PDO::PARAM_STR);
-        $stmt->bindParam(':sentiment_score', $input['sentiment_score'], PDO::PARAM_STR);
-        $stmt->bindParam(':mood', $input['mood'], PDO::PARAM_STR);
+        $stmt->bindParam(':sentiment_score', $sentimentScore, PDO::PARAM_STR);
+        $stmt->bindParam(':mood', $mood, PDO::PARAM_STR);
+        $stmt->execute();
+
+        // Update mood metrics 
+        $stmt = $pdo->prepare("INSERT INTO mood_metrics (user_id, mood, count, recorded_date) VALUES (:user_id, :mood, 1, CURDATE()) ON DUPLICATE KEY UPDATE count = count + 1");
+        $stmt->bindParam(':user_id', $userId);
+        $stmt->bindParam(':mood', $mood);
         $stmt->execute();
 
         $appSettings->respond([
@@ -78,8 +88,8 @@ try {
                 'id' => $pdo->lastInsertId(),
                 'user_id' => $userId,
                 'entry_text' => $input['entry_text'],
-                'sentiment_score' => $input['sentiment_score'],
-                'mood' => $input['mood'],
+                'sentiment_score' => $sentimentScore,
+                'mood' => $mood,
                 'created_at' => date('Y-m-d H:i:s')
             ],
             'message' => 'Journal entry added successfully!',
