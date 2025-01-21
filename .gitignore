@@ -1,0 +1,22 @@
+# Python virtual environment
+/backend/AI/bin/
+/backend/AI/lib/
+/backend/AI/lib64/
+/backend/AI/include/
+/backend/AI/pyvenv.cfg
+/backend/AI/__pycache__/
+/backend/AI/*.pyc
+/backend/AI/*.pyo
+/backend/AI/*.pyd
+
+# IDE and system files
+.idea/
+.vscode/
+.DS_Store
+*.swp
+*.swo
+
+# PHP specific
+/vendor/
+.env
+*.log

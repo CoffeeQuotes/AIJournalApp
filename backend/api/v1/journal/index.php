@@ -58,31 +58,37 @@ try {
     } elseif ($method === 'POST') {
 
         $input = json_decode(file_get_contents('php://input'), true);
-
+    
         if (!isset($input['entry_text'])) {
             throw new Exception('Invalid input: entry_text is required.');
         }
+    
         $moodAnalyzer = new MoodAnalyzer();
-        $sentimentScore = $moodAnalyzer->analyzeSentiment($input['entry_text']);
-        $mood = $moodAnalyzer->mapScoreToMood($sentimentScore);
-
+        $analysisResult = $moodAnalyzer->analyzeSentiment($input['entry_text']);
+        $mood = $analysisResult['sentiment'];
+        $sentimentScore = $analysisResult['score'];
+    
         $stmt = $pdo->prepare("
             INSERT INTO journal_entries (user_id, entry_text, sentiment_score, mood, created_at)
             VALUES (:user_id, :entry_text, :sentiment_score, :mood, NOW())
         ");
-
+    
         $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
         $stmt->bindParam(':entry_text', $input['entry_text'], PDO::PARAM_STR);
         $stmt->bindParam(':sentiment_score', $sentimentScore, PDO::PARAM_STR);
         $stmt->bindParam(':mood', $mood, PDO::PARAM_STR);
         $stmt->execute();
-
+    
         // Update mood metrics 
-        $stmt = $pdo->prepare("INSERT INTO mood_metrics (user_id, mood, count, recorded_date) VALUES (:user_id, :mood, 1, CURDATE()) ON DUPLICATE KEY UPDATE count = count + 1");
+        $stmt = $pdo->prepare("
+            INSERT INTO mood_metrics (user_id, mood, count, recorded_date) 
+            VALUES (:user_id, :mood, 1, CURDATE()) 
+            ON DUPLICATE KEY UPDATE count = count + 1
+        ");
         $stmt->bindParam(':user_id', $userId);
         $stmt->bindParam(':mood', $mood);
         $stmt->execute();
-
+    
         $appSettings->respond([
             'data' => [
                 'id' => $pdo->lastInsertId(),
@@ -95,7 +101,7 @@ try {
             'message' => 'Journal entry added successfully!',
             'status' => 201
         ]);
-
+    
     } elseif ($method === 'DELETE' && $id) {
         if (!verifyJournalOwnership($userId, $id)) {
             throw new Exception('Unauthorized to delete this journal entry', 403);

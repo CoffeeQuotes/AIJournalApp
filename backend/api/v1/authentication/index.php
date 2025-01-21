@@ -9,7 +9,7 @@ try {
     $method = $_SERVER['REQUEST_METHOD'];
     $auth = new Auth();
     $input = json_decode(file_get_contents('php://input'), true);
-
+    // print_r($method);die;
     if ($method === 'POST' && isset($_GET['action'])) {
         switch ($_GET['action']) {
             case 'register':
