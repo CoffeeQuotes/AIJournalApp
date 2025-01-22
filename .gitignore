@@ -1,6 +1,7 @@
 # Python virtual environment
 /backend/AI/bin/
 /backend/AI/lib/
+/backend/AI/share/
 /backend/AI/lib64/
 /backend/AI/include/
 /backend/AI/pyvenv.cfg
