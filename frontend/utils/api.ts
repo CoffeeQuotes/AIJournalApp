@@ -8,10 +8,12 @@ export async function fetchData<T = any>(
   endpoint: string,
   method: string = "GET",
   body?: any,
+  token?: string,
   options: FetchDataOptions = {}
 ): Promise<T> {
-  const headers = {
+  const headers: HeadersInit = {
     "Content-Type": "application/json",
+    ...(token ? { "Authorization": `Bearer ${token}` } : {}),
     ...options.headers,
   };
 
