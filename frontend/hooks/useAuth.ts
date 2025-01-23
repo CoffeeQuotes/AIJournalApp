@@ -1,33 +1,36 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { getCookie, setCookie, deleteCookie } from 'cookies-next';
 
 interface AuthState {
-  user: { token: string } | null;
-  loading: boolean; // Add a loading state
-  login: (token: string) => void;
-  logout: () => void;
+    user: { token: string } | null;
+    login: (token: string) => void;
+    logout: () => void;
+    refreshToken: (token: string) => void;
 }
 
 export function useAuth(): AuthState {
-  const [user, setUser] = useState<{ token: string } | null>(null);
-  const [loading, setLoading] = useState(true); // Track initialization/loading state
+    const [user, setUser] = useState<{ token: string } | null>(null);
 
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    if (token) {
-      setUser({ token });
-    }
-    setLoading(false); // Mark initialization as complete
-  }, []);
+    useEffect(() => {
+        const token = getCookie("authToken");
+        if (token) {
+            setUser({ token: token as string });
+        }
+    }, []);
 
-  const login = (token: string) => {
-    localStorage.setItem("authToken", token);
-    setUser({ token });
-  };
+    const login = (token: string) => {
+        setUser({ token });
+    };
 
-  const logout = () => {
-    localStorage.removeItem("authToken");
-    setUser(null);
-  };
+    const logout = () => {
+        deleteCookie("authToken");
+        setUser(null);
+    };
 
-  return { user, loading, login, logout };
+    const refreshToken = useCallback((token: string) => {
+        setCookie('authToken', token, { maxAge: 60 * 60 });
+        setUser({token});
+    }, []);
+
+    return { user, login, logout, refreshToken };
 }

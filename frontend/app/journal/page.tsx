@@ -18,47 +18,41 @@ interface Entry {
 }
 
 export default function Journal() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const [entries, setEntries] = useState<Entry[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.replace("/login");
-    }
-  }, [user, loading, router]);
-
-  useEffect(() => {
-    const fetchJournalEntries = async () => {
-      if (!user?.token) {
-        return;
-      }
-
-      try {
-        const response = await fetchData("journal/index.php", "GET", null, user.token);
-
-        if (response.status === 200) {
-          const formattedEntries = response.data.map((entry: any) => ({
-            id: entry.id,
-            date: new Date(entry.created_at).toLocaleDateString(),
-            title: generateTitle(entry.entry_text),
-            preview: generateExcerpt(entry.entry_text),
-          }));
-          setEntries(formattedEntries);
-        } else {
-          console.error("Failed to fetch entries:", response.message);
+      // Only fetch data if user is authenticated
+      const fetchJournalEntries = async () => {
+        if (!user?.token) {
+          return;
         }
-      } catch (error) {
-        console.error("Error fetching journal entries:", error);
-      } finally {
-        setDataLoading(false);
-      }
-    };
 
-    if (user) {
+        try {
+          const response = await fetchData("journal/index.php", "GET", null, user.token);
+
+          if (response.status === 200) {
+            const formattedEntries = response.data.map((entry: any) => ({
+              id: entry.id,
+              date: new Date(entry.created_at).toLocaleDateString(),
+              title: generateTitle(entry.entry_text),
+              preview: generateExcerpt(entry.entry_text),
+            }));
+            setEntries(formattedEntries);
+          } else {
+            console.error("Failed to fetch entries:", response.message);
+          }
+        } catch (error) {
+          console.error("Error fetching journal entries:", error);
+        } finally {
+          setDataLoading(false);
+        }
+      };
+
       fetchJournalEntries();
-    }
+
   }, [user]);
 
   const generateTitle = (entryText: string): string => {
@@ -70,16 +64,12 @@ export default function Journal() {
     return entryText.length > 100 ? `${entryText.slice(0, 97)}...` : entryText;
   };
 
-  if (loading || dataLoading) {
+  if (dataLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p>Loading...</p>
       </div>
     );
-  }
-
-  if (!user) {
-    return null;
   }
 
   return (

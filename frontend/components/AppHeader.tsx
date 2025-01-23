@@ -6,6 +6,9 @@ export default function Header() {
     <header className="container mx-auto px-4 py-6 flex justify-between items-center">
         <h2 className="text-2xl font-bold text-rose-600">NotesApp</h2>
         <nav>
+        <Link href="/dashboard" className="text-rose-600 hover:text-rose-800 mr-4">
+            Dashboard
+          </Link>
           <Link href="/journal" className="text-rose-600 hover:text-rose-800 mr-4">
             Journal
           </Link>

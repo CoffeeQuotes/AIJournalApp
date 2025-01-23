@@ -70,28 +70,34 @@ class Auth {
     
 
     public function refreshToken($token) {
-        $stmt = $this->pdo->prepare("SELECT * FROM tokens WHERE token = :token");
+        $stmt = $this->pdo->prepare("
+            SELECT * FROM tokens 
+            WHERE token = :token AND expires_at > NOW()
+        ");
         $stmt->bindParam(':token', $token);
         $stmt->execute();
         $currentToken = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($currentToken) {
-            $newToken = bin2hex(random_bytes(32));
-            $expiresAt = date('Y-m-d H:i:s', strtotime('+1 hour'));
-
-            $stmt = $this->pdo->prepare("
-                UPDATE tokens SET token = :new_token, expires_at = :expires_at WHERE id = :id
-            ");
-            $stmt->bindParam(':new_token', $newToken);
-            $stmt->bindParam(':expires_at', $expiresAt);
-            $stmt->bindParam(':id', $currentToken['id']);
-            $stmt->execute();
-
-            return ['token' => $newToken, 'expires_at' => $expiresAt];
+    
+        if (!$currentToken) {
+            throw new \Exception('Token not found or expired.', 401);
         }
-
-        throw new \Exception('Token not found or expired.');
+    
+        $newToken = bin2hex(random_bytes(32));
+        $expiresAt = date('Y-m-d H:i:s', strtotime('+1 hour'));
+    
+        $stmt = $this->pdo->prepare("
+            UPDATE tokens 
+            SET token = :new_token, expires_at = :expires_at 
+            WHERE id = :id
+        ");
+        $stmt->bindParam(':new_token', $newToken);
+        $stmt->bindParam(':expires_at', $expiresAt);
+        $stmt->bindParam(':id', $currentToken['id']);
+        $stmt->execute();
+    
+        return ['token' => $newToken, 'expires_at' => $expiresAt];
     }
+    
 
     public function generatePasswordResetToken($email) {
         $stmt = $this->pdo->prepare("SELECT id FROM users WHERE email = :email");
