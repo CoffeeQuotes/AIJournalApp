@@ -69,6 +69,23 @@ class AppSettings
     public function respond($data): void
     {
         if ($this->settings['response_as_json']) {
+            $allowedOrigins = [
+                'http://localhost:3000', // For development
+                'https://yourfrontenddomain.com', // For production
+            ];
+            
+            $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+            if (in_array($origin, $allowedOrigins)) {
+                header("Access-Control-Allow-Origin: $origin");
+            }
+            header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
+            header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+            
+            // Handle preflight requests
+            if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+                http_response_code(200);
+                exit;
+            }                
             header('Content-Type: application/json');
             echo json_encode($data);
         } else {

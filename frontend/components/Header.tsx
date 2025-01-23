@@ -3,27 +3,19 @@ import Link from 'next/link';
 
 export default function Header() {
   return (
-    <header className="bg-blue-600 text-white py-4">
-      <nav className="container mx-auto flex justify-between items-center">
-        <h1 className="text-xl font-bold">NotesApp</h1>
-        <ul className="flex space-x-4">
-          <li>
-            <Link href="/" className="hover:underline">
-              Home
-            </Link>
-          </li>
-          <li>
-            <Link href="/login" className="hover:underline">
-              Login
-            </Link>
-          </li>
-          <li>
-            <Link href="/register" className="hover:underline">
-              Register
-            </Link>
-          </li>
-        </ul>
-      </nav>
-    </header>
+    <header className="container mx-auto px-4 py-6 flex justify-between items-center">
+        <h2 className="text-2xl font-bold text-rose-600">NotesApp</h2>
+        <nav>
+          <Link href="/login" className="text-rose-600 hover:text-rose-800 mr-4">
+            Login
+          </Link>
+          <Link
+            href="/register"
+            className="px-4 py-2 bg-rose-200 text-rose-700 rounded-lg hover:bg-rose-300 transition duration-300"
+          >
+            Register
+          </Link>
+        </nav>
+      </header>
   );
 }

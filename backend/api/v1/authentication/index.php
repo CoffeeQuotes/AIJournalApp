@@ -23,8 +23,12 @@ try {
                 break;
 
             case 'logout':
-                $success = $auth->logout($input['token']);
-                $appSettings->respond(['message' => 'Logout successful!', 'status' => 200]);
+                try {
+                    $success = $auth->logout($input['token']);
+                    $appSettings->respond(['message' => 'Logout successful!', 'status' => 200]);
+                } catch (\Exception $e) {
+                    $appSettings->respond(['error' => $e->getMessage(), 'status' => 400]);
+                }
                 break;
 
             case 'refresh':

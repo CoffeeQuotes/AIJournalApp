@@ -48,12 +48,26 @@ class Auth {
     }
 
     public function logout($token) {
+        // Validate the token
+        $stmt = $this->pdo->prepare("
+            SELECT * FROM tokens WHERE token = :token AND expires_at > NOW()
+        ");
+        $stmt->bindParam(':token', $token);
+        $stmt->execute();
+        $validToken = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+        if (!$validToken) {
+            throw new \Exception('Invalid or expired token.');
+        }
+    
+        // Blacklist the token
         $stmt = $this->pdo->prepare("INSERT INTO blacklisted_tokens (token) VALUES (:token)");
         $stmt->bindParam(':token', $token);
         $stmt->execute();
     
         return ['message' => 'Logged out successfully'];
     }
+    
 
     public function refreshToken($token) {
         $stmt = $this->pdo->prepare("SELECT * FROM tokens WHERE token = :token");
@@ -156,5 +170,12 @@ class Auth {
     
         return ['message' => 'Token is valid.', 'user_id' => $validToken['user_id']];
     }
+
+    // cleanup cron 
+    public function cleanupExpiredTokens() {
+        $stmt = $this->pdo->prepare("DELETE FROM tokens WHERE expires_at <= NOW()");
+        $stmt->execute();
+    }
+    
     
 }

@@ -4,26 +4,14 @@ import React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { motion } from "framer-motion"
+import Header from "@/components/Header"
+import Footer from "@/components/Footer"
 
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white">
       {/* Header */}
-      <header className="container mx-auto px-4 py-6 flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-rose-600">NotesApp</h2>
-        <nav>
-          <Link href="/login" className="text-rose-600 hover:text-rose-800 mr-4">
-            Login
-          </Link>
-          <Link
-            href="/register"
-            className="px-4 py-2 bg-rose-200 text-rose-700 rounded-lg hover:bg-rose-300 transition duration-300"
-          >
-            Register
-          </Link>
-        </nav>
-      </header>
-
+      <Header/>
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-12 md:py-24 flex flex-col md:flex-row items-center">
         <motion.div
@@ -90,19 +78,7 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-rose-100 text-rose-800 py-8">
-        <div className="container mx-auto px-4 text-center">
-          <p>© {new Date().getFullYear()} NotesApp. All rights reserved.</p>
-          <div className="mt-4">
-            <Link href="/privacy" className="hover:underline mr-4">
-              Privacy Policy
-            </Link>
-            <Link href="/terms" className="hover:underline">
-              Terms of Service
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <Footer/>
     </main>
   )
 }
