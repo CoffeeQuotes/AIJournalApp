@@ -31,7 +31,7 @@ export default function Journal() {
         }
 
         try {
-          const response = await fetchData("journal/index.php", "GET", null, user.token);
+          const response = await fetchData("journal/index.php", "GET", null);
 
           if (response.status === 200) {
             const formattedEntries = response.data.map((entry: any) => ({
@@ -85,7 +85,7 @@ export default function Journal() {
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-3xl font-bold text-rose-800">Your Journal</h1>
             <Link
-              href="/new-entry"
+              href="/journal/create"
               className="flex items-center px-4 py-2 bg-rose-200 text-rose-700 rounded-md hover:bg-rose-300 transition duration-300"
             >
               <PlusCircle className="w-4 h-4 mr-2" />
@@ -125,7 +125,7 @@ function EntryCard({ entry }: { entry: Entry }) {
       </div>
       <p className="text-gray-600 mb-4">{entry.preview}</p>
       <Link
-        href={`/entry/${entry.id}`}
+        href={`/journal/${entry.id}`}
         className="flex items-center text-rose-600 hover:text-rose-800 transition-colors duration-300"
       >
         Read more
