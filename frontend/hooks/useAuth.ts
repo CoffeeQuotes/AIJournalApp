@@ -5,7 +5,6 @@ interface AuthState {
     user: { token: string } | null;
     login: (token: string) => void;
     logout: () => void;
-    refreshToken: (token: string) => void;
 }
 
 export function useAuth(): AuthState {
@@ -27,10 +26,10 @@ export function useAuth(): AuthState {
         setUser(null);
     };
 
-    const refreshToken = useCallback((token: string) => {
-        setCookie('authToken', token, { maxAge: 60 * 60 });
-        setUser({token});
-    }, []);
+    // const refreshToken = useCallback((token: string) => {
+    //     setCookie('authToken', token, { maxAge: 60 * 60 });
+    //     setUser({token});
+    // }, []);
 
-    return { user, login, logout, refreshToken };
+    return { user, login, logout};
 }

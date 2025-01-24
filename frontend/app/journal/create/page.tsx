@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useState } from "react";
-import Header from "@/components/Header";
+import AppHeader from "@/components/AppHeader";
 import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
 import { ArrowLeft, Save } from "lucide-react";
@@ -44,7 +44,7 @@ export default function NewEntry() {
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white flex flex-col">
-      <Header />
+      <AppHeader />
 
       <motion.section
         className="flex-grow container mx-auto px-4 py-8 md:py-12"

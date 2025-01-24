@@ -45,6 +45,11 @@ try {
                 $data = $auth->resetPassword($input['token'], $input['new_password']);
                 $appSettings->respond(['message' => 'Password reset successfully!', 'status' => 200]);
                 break;
+
+            case 'validate-token':
+                $data = $auth->validateToken($input['token']);
+                $appSettings->respond(['data' => $data, 'status' => 200]);
+                break;
         }
     } else {
         throw new Exception('Invalid endpoint or method.');

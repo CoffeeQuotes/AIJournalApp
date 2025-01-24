@@ -9,16 +9,17 @@ import { LogOut, PlusCircle, Book, BarChart } from "lucide-react";
 import AppHeader from "@/components/AppHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchData } from "@/utils/api";
+import { getCookie } from "cookies-next";
 
 export default function Dashboard() {
-  const { user, loading, logout } = useAuth();
+  const { user, logout } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (!user) {
       router.replace("/login");
     }
-  }, [user, loading, router]);
+  }, [user, router]);
 
   const handleLogout = async () => {
     try {
@@ -38,14 +39,11 @@ export default function Dashboard() {
     }
   };
 
-  if (loading) {
-    return <p>Loading...</p>;
-  }
 
   if (!user) {
     return null;
   }
-
+  // console.log(getCookie("authToken"));
   return (
     <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white flex flex-col">
       <AppHeader />
@@ -72,13 +70,13 @@ export default function Dashboard() {
               title="New Entry"
               description="Create a new journal entry"
               icon={<PlusCircle className="w-6 h-6" />}
-              link="/new-entry"
+              link="/journal/create"
             />
             <DashboardCard
               title="View Entries"
               description="Browse your past journal entries"
               icon={<Book className="w-6 h-6" />}
-              link="/entries"
+              link="/journal"
             />
             <DashboardCard
               title="Mood Analysis"
