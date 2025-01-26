@@ -32,17 +32,26 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetchData<{
-        message: string;
-        data: { token: string; expires_at: string };
-      }>("authentication/index.php?action=login", "POST", formData);
+        const response = await fetchData<{
+          message?: string; // Optional, as it might not be present in errors
+          error?: string;  // Optional, as it might not be present on success
+          data?: { token: string; expires_at: string };
+          status: number;
+        }>("authentication/index.php?action=login", "POST", formData);
 
-      setCookie('authToken', response.data.token, { maxAge: 60 * 60 * 24 * 30, path: '/' }); // 30 days
+      if (response.status === 200 && response.data) {
+        // Handle successful login
+        const expireyDate = new Date(response.data.expires_at).getTime()
+        const maxAge = Math.round((expireyDate - Date.now()) / 1000);
+        setCookie('authToken', response.data.token, { maxAge: maxAge, path: '/' });
+        login(response.data.token);
+        setSuccessMessage(response.message || "Login Successful!");
+        router.push(next);
+      } else {
+        // Handle unsuccessful login
+         setError(response.error || response.message || "Invalid email or password.");
+      }
 
-      login(response.data.token);
-
-      setSuccessMessage(response.message);
-      setTimeout(() => router.push(next), 2000);
     } catch (err: any) {
       setError(err.message || "An error occurred. Please try again.");
     } finally {
@@ -104,6 +113,10 @@ export default function Login() {
             Don't have an account?{" "}
             <Link href="/register" className="text-rose-600 hover:underline">
               Register here
+            </Link>
+             or 
+            <Link href="/reset-password/request" className="text-rose-600 hover:underline">
+              Forgot your password?
             </Link>
           </p>
         </motion.div>

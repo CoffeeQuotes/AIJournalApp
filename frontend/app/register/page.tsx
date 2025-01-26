@@ -6,6 +6,7 @@ import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
 import { fetchData } from "@/utils/api";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -136,6 +137,16 @@ export default function Register() {
               {loading ? "Registering..." : "Register"}
             </button>
           </form>
+          <p className="mt-4 text-center text-gray-600">
+            Already have an account?{" "}
+            <Link href="/login" className="text-rose-600 hover:underline">
+              Login here
+            </Link>
+            &nbsp;or&nbsp;
+            <Link href="/reset-password/request" className="text-rose-600 hover:underline">
+              Forgot your password?
+            </Link>
+          </p>
         </motion.div>
       </section>
 
