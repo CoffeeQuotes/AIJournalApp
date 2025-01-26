@@ -11,5 +11,7 @@
             "email": "sky8052785942ocean@gmail.com"
         }
     ],
-    "require": {}
+    "require": {
+        "phpmailer/phpmailer": "^6.9"
+    }
 }

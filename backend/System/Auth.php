@@ -2,6 +2,8 @@
 namespace NotesApp\System;
 
 use PDO;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception as EmailException;
 
 class Auth {
     private $pdo;
@@ -116,6 +118,88 @@ class Auth {
             $stmt->execute();
     
             // Return token or send via email
+            $mail = new PHPMailer(true);
+
+            try {
+                $mail->isSMTP();
+                $mail->Host = '127.0.0.1';
+                $mail->Port = 1025;
+                $mail->SMTPAuth = false;
+                $mail->SMTPDebug = false;
+
+                $mail->setFrom('message@notesapp.com', 'NotesApp');
+                $mail->addAddress($email);
+
+                $mail->isHTML(true);
+                $mail->Subject = 'Password Reset';
+                $mail->Body = '
+                <!DOCTYPE html>
+                <html lang="en">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <style>
+                        body {
+                            font-family: Arial, sans-serif;
+                            background-color: #f4f4f4;
+                            margin: 0;
+                            padding: 20px;
+                        }
+                        .container {
+                            background-color: #ffffff;
+                            border-radius: 5px;
+                            padding: 20px;
+                            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                            max-width: 600px;
+                            margin: auto;
+                        }
+                        h1 {
+                            color: #333;
+                        }
+                        p {
+                            color: #555;
+                        }
+                        .reset-link {
+                            display: inline-block;
+                            padding: 10px 15px;
+                            margin: 20px 0;
+                            background-color: #007bff;
+                            color: white;
+                            text-decoration: none;
+                            border-radius: 5px;
+                            font-weight: bold;
+                        }
+                        .reset-link:hover {
+                            background-color: #0056b3;
+                        }
+                        footer {
+                            margin-top: 20px;
+                            font-size: 12px;
+                            color: #aaa;
+                            text-align: center;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="container">
+                        <h1>NotesApp | AI Journaling app!</h1>
+                        <h3>Password Reset Request</h3>
+                        <p>Please click the button below to reset your password:</p>
+                        <a href="http://localhost:3000/reset-password/' . $token . '" class="reset-link">Reset Password</a>
+                        <footer>
+                            <p>If you did not request a password reset, please ignore this email.</p>
+                        </footer>
+                    </div>
+                </body>
+                </html>';
+
+                $mail->send();
+
+            } catch (EmailException $e) {
+                echo 'Message could not be sent. Mailer Error: ' . $mail->ErrorInfo;
+            }
+            // ...We have to send an email here to the user
+
             return ['message' => 'Password reset token generated!', 'token' => $token];
         } else {
             throw new \Exception('Email not found');
