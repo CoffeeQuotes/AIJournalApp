@@ -50,6 +50,12 @@ try {
                 $data = $auth->validateToken($input['token']);
                 $appSettings->respond(['data' => $data, 'status' => 200]);
                 break;
+
+            case 'clean-expired-tokens':
+                $data = $auth->cleanupExpiredTokens();
+                $appSettings->respond(['message' => 'Expired tokens cleaned successfully.', 'status' => 200]);
+                break;
+
         }
     } else {
         throw new Exception('Invalid endpoint or method.');
