@@ -1,35 +1,35 @@
-import { useState, useEffect, useCallback } from "react";
-import { getCookie, setCookie, deleteCookie } from 'cookies-next';
+import { useState, useEffect } from "react";
+import { getCookie, setCookie, deleteCookie } from "cookies-next";
 
 interface AuthState {
-    user: { token: string } | null;
-    login: (token: string) => void;
-    logout: () => void;
+  user: { token: string; username: string } | null;
+  login: (token: string, username: string) => void;
+  logout: () => void;
 }
 
 export function useAuth(): AuthState {
-    const [user, setUser] = useState<{ token: string } | null>(null);
+  const [user, setUser] = useState<{ token: string; username: string } | null>(
+    null,
+  );
 
-    useEffect(() => {
-        const token = getCookie("authToken");
-        if (token) {
-            setUser({ token: token as string });
-        }
-    }, []);
+  useEffect(() => {
+    const token = getCookie("authToken");
+    const username = getCookie("username");
+    if (token && username) {
+      setUser({ token: token as string, username: username as string });
+    }
+  }, []);
 
-    const login = (token: string) => {
-        setUser({ token });
-    };
+  const login = (token: string, username: string) => {
+    setCookie("username", username, { path: "/" });
+    setUser({ token, username });
+  };
 
-    const logout = () => {
-        deleteCookie("authToken");
-        setUser(null);
-    };
+  const logout = () => {
+    deleteCookie("authToken");
+    deleteCookie("username");
+    setUser(null);
+  };
 
-    // const refreshToken = useCallback((token: string) => {
-    //     setCookie('authToken', token, { maxAge: 60 * 60 });
-    //     setUser({token});
-    // }, []);
-
-    return { user, login, logout};
+  return { user, login, logout };
 }

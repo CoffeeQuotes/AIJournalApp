@@ -39,7 +39,6 @@ export default function Dashboard() {
     }
   };
 
-
   if (!user) {
     return null;
   }
@@ -55,7 +54,9 @@ export default function Dashboard() {
           transition={{ duration: 0.5 }}
         >
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-rose-800">Welcome, User</h1>
+            <h1 className="text-3xl font-bold text-rose-800">
+              Welcome, {user.username.charAt(0).toUpperCase() + user.username.slice(1)}!
+            </h1>
             <button
               className="flex items-center px-4 py-2 bg-rose-200 text-rose-700 rounded-md hover:bg-rose-300 transition duration-300"
               onClick={handleLogout}

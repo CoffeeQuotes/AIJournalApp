@@ -32,25 +32,33 @@ export default function Register() {
     setError(null);
     setSuccessMessage(null);
     setLoading(true);
-
+  
     try {
-      const response = await fetchData<{ message: string; user_id: string }>(
-        "authentication/index.php?action=register",
-        "POST",
-        formData
-      );
-
-      // Handle success
-      setSuccessMessage(response.message);
-      setTimeout(() => {
-        router.push("/login"); // Redirect to login page
-      }, 2000);
+      const response = await fetchData<{
+        message?: string;
+        user_id?: string;
+        error?: string;
+        status?: number;
+      }>("authentication/index.php?action=register", "POST", formData);
+  
+      if (response.status === 201 && response.message) {
+        // Handle success
+        setSuccessMessage(response.message);
+        setTimeout(() => {
+          router.push("/login"); // Redirect to login page
+        }, 2000);
+      } else {
+        // Handle error returned from the API
+        setError(response.error || "Registration failed. Please try again.");
+      }
     } catch (err: any) {
+      // Handle network or unexpected errors
       setError(err.message || "An error occurred. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white flex flex-col">

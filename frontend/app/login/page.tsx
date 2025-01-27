@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchData } from "@/utils/api";
-import { setCookie } from 'cookies-next';
+import { setCookie } from "cookies-next";
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -18,7 +18,7 @@ export default function Login() {
   const { login } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get('next') || '/';
+  const next = searchParams.get("next") || "/";
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -32,26 +32,31 @@ export default function Login() {
     setLoading(true);
 
     try {
-        const response = await fetchData<{
-          message?: string; // Optional, as it might not be present in errors
-          error?: string;  // Optional, as it might not be present on success
-          data?: { token: string; expires_at: string };
-          status: number;
-        }>("authentication/index.php?action=login", "POST", formData);
+      const response = await fetchData<{
+        message?: string;
+        error?: string;
+        data?: { token: string; expires_at: string; username: string };
+        status: number;
+      }>("authentication/index.php?action=login", "POST", formData);
 
       if (response.status === 200 && response.data) {
-        // Handle successful login
-        const expireyDate = new Date(response.data.expires_at).getTime()
+        const expireyDate = new Date(response.data.expires_at).getTime();
         const maxAge = Math.round((expireyDate - Date.now()) / 1000);
-        setCookie('authToken', response.data.token, { maxAge: maxAge, path: '/' });
-        login(response.data.token);
+
+        // Save token and username to cookies
+        setCookie("authToken", response.data.token, { maxAge, path: "/" });
+        setCookie("username", response.data.username, { maxAge, path: "/" });
+
+        // Update user state
+        login(response.data.token, response.data.username);
+
         setSuccessMessage(response.message || "Login Successful!");
         router.push(next);
       } else {
-        // Handle unsuccessful login
-         setError(response.error || response.message || "Invalid email or password.");
+        setError(
+          response.error || response.message || "Invalid email or password.",
+        );
       }
-
     } catch (err: any) {
       setError(err.message || "An error occurred. Please try again.");
     } finally {
@@ -69,10 +74,18 @@ export default function Login() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-3xl font-bold mb-6 text-rose-800 text-center">Login</h2>
-          <form className="bg-white shadow-md rounded-lg p-8 space-y-4" onSubmit={handleSubmit}>
+          <h2 className="text-3xl font-bold mb-6 text-rose-800 text-center">
+            Login
+          </h2>
+          <form
+            className="bg-white shadow-md rounded-lg p-8 space-y-4"
+            onSubmit={handleSubmit}
+          >
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Email
               </label>
               <input
@@ -86,7 +99,10 @@ export default function Login() {
               />
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Password
               </label>
               <input
@@ -99,8 +115,14 @@ export default function Login() {
                 required
               />
             </div>
-            {error && <p className="text-red-600 text-sm text-center">{error}</p>}
-            {successMessage && <p className="text-green-600 text-sm text-center">{successMessage}</p>}
+            {error && (
+              <p className="text-red-600 text-sm text-center">{error}</p>
+            )}
+            {successMessage && (
+              <p className="text-green-600 text-sm text-center">
+                {successMessage}
+              </p>
+            )}
             <button
               type="submit"
               className="w-full bg-rose-200 text-rose-700 py-3 rounded-md hover:bg-rose-300 transition duration-300 font-medium"
@@ -115,7 +137,10 @@ export default function Login() {
               Register here
             </Link>
              or 
-            <Link href="/reset-password/request" className="text-rose-600 hover:underline">
+            <Link
+              href="/reset-password/request"
+              className="text-rose-600 hover:underline"
+            >
               Forgot your password?
             </Link>
           </p>
