@@ -85,7 +85,7 @@ export default function Analysis() {
               .filter((entry) => entry.recorded_date === date && entry.mood === "POSITIVE")
               .reduce((acc, entry) => acc + entry.count, 0),
           ),
-        backgroundColor: "#4caf50",
+        backgroundColor: "rgba(162, 222, 208, 0.7)",
       },
       {
         label: "Negative Mood",
@@ -96,7 +96,7 @@ export default function Analysis() {
               .filter((entry) => entry.recorded_date === date && entry.mood === "NEGATIVE")
               .reduce((acc, entry) => acc + entry.count, 0),
           ),
-        backgroundColor: "#f44336",
+        backgroundColor: "rgba(255, 182, 193, 0.7)",
       },
     ],
   }
@@ -110,8 +110,8 @@ export default function Analysis() {
           Number(moodTrends.find((entry) => entry.mood === "POSITIVE")?.total || 0),
           Number(moodTrends.find((entry) => entry.mood === "NEGATIVE")?.total || 0),
         ],
-        backgroundColor: ["#4caf50", "#f44336"],
-        borderColor: ["rgba(76, 175, 80, 0.8)", "rgba(244, 67, 54, 0.8)"],
+        backgroundColor: ["rgba(162, 222, 208, 0.7)", "rgba(255, 182, 193, 0.7)"],
+        borderColor: ["rgba(162, 222, 208, 1)", "rgba(255, 182, 193, 1)"],
         borderWidth: 1,
       },
     ],
@@ -153,6 +153,11 @@ export default function Analysis() {
         },
       },
     },
+    layout: {
+      padding: {
+        bottom: 20,
+      },
+    },
   }
 
   const pieChartOptions = {
@@ -169,6 +174,11 @@ export default function Analysis() {
         display: true,
         text: "Overall Mood Distribution",
         color: "rgb(156, 163, 175)", // gray-400 for both light and dark mode
+      },
+    },
+    layout: {
+      padding: {
+        bottom: 20,
       },
     },
   }
@@ -252,15 +262,19 @@ export default function Analysis() {
         ) : (
           <>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              <div className="h-[400px] bg-white dark:bg-zinc-800 p-4 rounded-lg shadow-md">
+              <div className="h-[450px] w-full bg-white dark:bg-zinc-800 p-4 pb-8 rounded-lg shadow-md overflow-hidden">
                 <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4">Daily Mood Summary</h2>
-                <Bar data={barChartData} options={barChartOptions} />
+                <div className="h-full w-full">
+                  <Bar data={barChartData} options={barChartOptions} />
+                </div>
               </div>
-              <div className="h-[400px] bg-white dark:bg-zinc-800 p-4 rounded-lg shadow-md">
+              <div className="h-[450px] w-full bg-white dark:bg-zinc-800 p-4 pb-8 rounded-lg shadow-md overflow-hidden">
                 <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-200 mb-4">
                   Overall Mood Distribution
                 </h2>
-                <Pie data={pieChartData} options={pieChartOptions} />
+                <div className="h-full w-full">
+                  <Pie data={pieChartData} options={pieChartOptions} />
+                </div>
               </div>
             </div>
 
