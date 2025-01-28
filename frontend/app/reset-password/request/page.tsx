@@ -23,16 +23,14 @@ export default function RequestPasswordReset() {
 
     try {
       // Here you would typically send a request to your backend
-      const response = await fetchData("authentication/index.php?action=reset-password-request", "POST", { email });
-      setMessage(response.message);
+      const response = await fetchData("authentication/index.php?action=reset-password-request", "POST", { email })
+      setMessage(response.message)
       // send back to login page with success message
       if (response.status === 200) {
         setTimeout(() => {
-          router.push("/login"); // Redirect to login
-        }, 2000); // Delay of 2 seconds for user to read the message
+          router.push("/login") // Redirect to login
+        }, 2000) // Delay of 2 seconds for user to read the message
       }
-
-        
     } catch (error) {
       setMessage("An error occurred. Please try again.")
     } finally {
@@ -41,7 +39,7 @@ export default function RequestPasswordReset() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white flex flex-col">
+    <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white dark:from-rose-950 dark:to-black flex flex-col">
       <Header />
 
       <motion.section
@@ -54,25 +52,25 @@ export default function RequestPasswordReset() {
           <div className="mb-6">
             <Link
               href="/login"
-              className="inline-flex items-center text-rose-600 hover:text-rose-800 transition-colors duration-300"
+              className="inline-flex items-center text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 transition-colors duration-300"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Login
             </Link>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
-            <h1 className="text-3xl font-bold text-rose-800 mb-6">Reset Password</h1>
+          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-md p-6 md:p-8">
+            <h1 className="text-3xl font-bold text-rose-800 dark:text-rose-200 mb-6">Reset Password</h1>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   Email Address
                 </label>
                 <input
                   type="email"
                   id="email"
-                  className="w-full p-3 border border-gray-300 text-black placeholder-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-200"
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 text-black dark:text-white bg-white dark:bg-zinc-700 placeholder-gray-500 dark:placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-700"
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -82,7 +80,7 @@ export default function RequestPasswordReset() {
               <div>
                 <button
                   type="submit"
-                  className="w-full inline-flex justify-center items-center px-4 py-2 bg-rose-200 text-rose-700 rounded-md hover:bg-rose-300 transition duration-300 disabled:opacity-50"
+                  className="w-full inline-flex justify-center items-center px-4 py-2 bg-rose-200 dark:bg-rose-800 text-rose-700 dark:text-rose-200 rounded-md hover:bg-rose-300 dark:hover:bg-rose-700 transition duration-300 disabled:opacity-50"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? (
@@ -97,7 +95,7 @@ export default function RequestPasswordReset() {
               </div>
             </form>
 
-            {message && <p className="mt-4 text-sm text-center text-gray-600">{message}</p>}
+            {message && <p className="mt-4 text-sm text-center text-gray-600 dark:text-gray-400">{message}</p>}
           </div>
         </div>
       </motion.section>
