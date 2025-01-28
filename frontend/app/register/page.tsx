@@ -61,7 +61,7 @@ export default function Register() {
   
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white flex flex-col">
+    <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white dark:from-rose-950 dark:to-black flex flex-col">
       <Header />
 
       <section className="flex-grow container mx-auto px-4 py-12 md:py-24 flex flex-col items-center justify-center">
@@ -71,87 +71,69 @@ export default function Register() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-3xl font-bold mb-6 text-rose-800 text-center">
-            Register
-          </h2>
-          <form
-            className="bg-white shadow-md rounded-lg p-8 space-y-4"
-            onSubmit={handleSubmit}
-          >
+          <h2 className="text-3xl font-bold mb-6 text-rose-800 dark:text-rose-200 text-center">Register</h2>
+          <form className="bg-white dark:bg-zinc-900 shadow-md rounded-lg p-8 space-y-4" onSubmit={handleSubmit}>
             <div>
-              <label
-                htmlFor="username"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Username
               </label>
               <input
                 id="username"
                 type="text"
                 placeholder="Enter your username"
-                className="w-full p-3 border border-gray-300 rounded-md text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-rose-200"
+                className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-md text-black dark:text-white bg-white dark:bg-zinc-800 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-700"
                 value={formData.username}
                 onChange={handleInputChange}
                 required
               />
             </div>
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Email
               </label>
               <input
                 id="email"
                 type="email"
                 placeholder="Enter your email"
-                className="w-full p-3 border border-gray-300 rounded-md text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-rose-200"
+                className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-md text-black dark:text-white bg-white dark:bg-zinc-800 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-700"
                 value={formData.email}
                 onChange={handleInputChange}
                 required
               />
             </div>
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700 mb-1"
-              >
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Password
               </label>
               <input
                 id="password"
                 type="password"
                 placeholder="Create a password"
-                className="w-full p-3 border border-gray-300 rounded-md text-black placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-rose-200"
+                className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-md text-black dark:text-white bg-white dark:bg-zinc-800 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-700"
                 value={formData.password}
                 onChange={handleInputChange}
                 required
               />
             </div>
-            {error && (
-              <p className="text-red-600 text-sm text-center">{error}</p>
-            )}
+            {error && <p className="text-red-600 dark:text-red-400 text-sm text-center">{error}</p>}
             {successMessage && (
-              <p className="text-green-600 text-sm text-center">
-                {successMessage}
-              </p>
+              <p className="text-green-600 dark:text-green-400 text-sm text-center">{successMessage}</p>
             )}
             <button
               type="submit"
-              className="w-full bg-rose-200 text-rose-700 py-3 rounded-md hover:bg-rose-300 transition duration-300 font-medium"
+              className="w-full bg-rose-200 dark:bg-rose-800 text-rose-700 dark:text-rose-200 py-3 rounded-md hover:bg-rose-300 dark:hover:bg-rose-700 transition duration-300 font-medium"
               disabled={loading}
             >
               {loading ? "Registering..." : "Register"}
             </button>
           </form>
-          <p className="mt-4 text-center text-gray-600">
+          <p className="mt-4 text-center text-gray-600 dark:text-gray-400">
             Already have an account?{" "}
-            <Link href="/login" className="text-rose-600 hover:underline">
+            <Link href="/login" className="text-rose-600 dark:text-rose-400 hover:underline">
               Login here
             </Link>
             &nbsp;or&nbsp;
-            <Link href="/reset-password/request" className="text-rose-600 hover:underline">
+            <Link href="/reset-password/request" className="text-rose-600 dark:text-rose-400 hover:underline">
               Forgot your password?
             </Link>
           </p>

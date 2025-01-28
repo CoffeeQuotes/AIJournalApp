@@ -88,7 +88,7 @@ export default function JournalEntry({ params }: { params: Promise<{ id: string 
 
   if (dataLoading) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
+      <main className="min-h-screen flex items-center justify-center bg-white dark:bg-black text-gray-800 dark:text-gray-200">
         <p>Loading...</p>
       </main>
     );
@@ -96,14 +96,14 @@ export default function JournalEntry({ params }: { params: Promise<{ id: string 
 
   if (!entry) {
     return (
-      <main className="min-h-screen flex items-center justify-center">
+      <main className="min-h-screen flex items-center justify-center bg-white dark:bg-black text-gray-800 dark:text-gray-200">
         <p>Entry not found</p>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white flex flex-col">
+    <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white dark:from-rose-950 dark:to-black flex flex-col">
       <Header />
 
       <motion.section
@@ -116,26 +116,26 @@ export default function JournalEntry({ params }: { params: Promise<{ id: string 
           <div className="mb-6">
             <Link
               href="/journal"
-              className="inline-flex items-center text-rose-600 hover:text-rose-800 transition-colors duration-300"
+              className="inline-flex items-center text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 transition-colors duration-300"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Journal
             </Link>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
-            <h1 className="text-3xl font-bold text-rose-800 mb-4">{entry.title}</h1>
+          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-md p-6 md:p-8">
+            <h1 className="text-3xl font-bold text-rose-800 dark:text-rose-200 mb-4">{entry.title}</h1>
 
-            <div className="flex items-center text-gray-600 mb-6">
+            <div className="flex items-center text-gray-600 dark:text-gray-400 mb-6">
               <Calendar className="w-4 h-4 mr-2" />
               <span className="mr-4">{entry.date}</span>
               <Clock className="w-4 h-4 mr-2" />
               <span>{entry.time}</span>
             </div>
 
-            <div className="prose max-w-none">
+            <div className="prose dark:prose-invert max-w-none">
               {entry.content.split("\n\n").map((paragraph, index) => (
-                <p key={index} className="mb-4 text-gray-700">
+                <p key={index} className="mb-4 text-gray-700 dark:text-gray-300">
                   {paragraph}
                 </p>
               ))}
@@ -144,7 +144,7 @@ export default function JournalEntry({ params }: { params: Promise<{ id: string 
             <div className="mt-8">
               <button
                 onClick={handleDelete}
-                className="inline-flex items-center px-4 py-2 bg-red-200 text-red-700 rounded-md hover:bg-red-300 transition duration-300"
+                className="inline-flex items-center px-4 py-2 bg-red-200 dark:bg-red-800 text-red-700 dark:text-red-200 rounded-md hover:bg-red-300 dark:hover:bg-red-700 transition duration-300"
               >
                 <Trash2 className="w-4 h-4 mr-2" />
                 Delete Entry

@@ -66,71 +66,73 @@ export default function Journal() {
 
   if (dataLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-black text-gray-800 dark:text-gray-200">
         <p>Loading...</p>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white flex flex-col">
-      <AppHeader />
-      <section className="flex-grow container mx-auto px-4 py-8 md:py-12">
-        <motion.div
-          className="w-full"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-rose-800">Your Journal</h1>
-            <Link
-              href="/journal/create"
-              className="flex items-center px-4 py-2 bg-rose-200 text-rose-700 rounded-md hover:bg-rose-300 transition duration-300"
-            >
-              <PlusCircle className="w-4 h-4 mr-2" />
-              New Entry
-            </Link>
-          </div>
+    <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white dark:from-rose-950 dark:to-black flex flex-col">
+    <AppHeader />
+    <section className="flex-grow container mx-auto px-4 py-8 md:py-12">
+      <motion.div
+        className="w-full"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-rose-800 dark:text-rose-200">Your Journal</h1>
+          <Link
+            href="/journal/create"
+            className="flex items-center px-4 py-2 bg-rose-200 dark:bg-rose-800 text-rose-700 dark:text-rose-200 rounded-md hover:bg-rose-300 dark:hover:bg-rose-700 transition duration-300"
+          >
+            <PlusCircle className="w-4 h-4 mr-2" />
+            New Entry
+          </Link>
+        </div>
 
-          <div className="space-y-4">
-            {entries.map((entry) => (
-              <EntryCard key={entry.id} entry={entry} />
-            ))}
-          </div>
+        <div className="space-y-4">
+          {entries.map((entry) => (
+            <EntryCard key={entry.id} entry={entry} />
+          ))}
+        </div>
 
-          {entries.length === 0 && (
-            <div className="text-center py-12">
-              <Book className="w-16 h-16 text-rose-300 mx-auto mb-4" />
-              <p className="text-gray-600">You haven't made any entries yet. Start journaling today!</p>
-            </div>
-          )}
-        </motion.div>
-      </section>
-      <Footer />
-    </main>
+        {entries.length === 0 && (
+          <div className="text-center py-12">
+            <Book className="w-16 h-16 text-rose-300 dark:text-rose-700 mx-auto mb-4" />
+            <p className="text-gray-600 dark:text-gray-400">
+              You haven't made any entries yet. Start journaling today!
+            </p>
+          </div>
+        )}
+      </motion.div>
+    </section>
+    <Footer />
+  </main>
   );
 }
 
 function EntryCard({ entry }: { entry: Entry }) {
   return (
     <motion.div
-      className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
-      whileHover={{ scale: 1.02 }}
-      transition={{ type: "spring", stiffness: 300 }}
+    className="bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+    whileHover={{ scale: 1.02 }}
+    transition={{ type: "spring", stiffness: 300 }}
+  >
+    <div className="flex justify-between items-start mb-2">
+      <h2 className="text-xl font-semibold text-rose-700 dark:text-rose-300">{entry.title}</h2>
+      <span className="text-sm text-gray-500 dark:text-gray-400">{entry.date}</span>
+    </div>
+    <p className="text-gray-600 dark:text-gray-300 mb-4">{entry.preview}</p>
+    <Link
+      href={`/journal/${entry.id}`}
+      className="flex items-center text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 transition-colors duration-300"
     >
-      <div className="flex justify-between items-start mb-2">
-        <h2 className="text-xl font-semibold text-rose-700">{entry.title}</h2>
-        <span className="text-sm text-gray-500">{entry.date}</span>
-      </div>
-      <p className="text-gray-600 mb-4">{entry.preview}</p>
-      <Link
-        href={`/journal/${entry.id}`}
-        className="flex items-center text-rose-600 hover:text-rose-800 transition-colors duration-300"
-      >
-        Read more
-        <ChevronRight className="w-4 h-4 ml-1" />
-      </Link>
-    </motion.div>
+      Read more
+      <ChevronRight className="w-4 h-4 ml-1" />
+    </Link>
+  </motion.div>
   );
 }

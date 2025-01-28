@@ -7,6 +7,7 @@ import Footer from "@/components/Footer"
 import { motion } from "framer-motion"
 import { fetchData } from "@/utils/api"
 import { Check, Loader2 } from "lucide-react"
+import { useTheme } from "../context/ThemeContext"
 
 interface SettingsResponse {
   data: {
@@ -27,7 +28,7 @@ export default function Settings() {
     notification: number
     language: string
   }>({
-    theme: "light",
+    theme: "system", // Start with the value from context
     notification: 0,
     language: "en",
   })
@@ -35,6 +36,7 @@ export default function Settings() {
   const [error, setError] = useState<string | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const { theme: contextTheme, setTheme } = useTheme();
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -42,15 +44,15 @@ export default function Settings() {
       setError(null)
       try {
         const response: SettingsResponse = await fetchData("/settings/index.php")
-        if (response.status === 200 && response.data) {
-          setSettings({
-            theme: response.data.theme,
-            notification: response.data.notification,
-            language: response.data.language,
-          })
-        } else {
-          setError(response.message || "Failed to fetch settings.")
-        }
+          if (response.status === 200 && response.data) {
+             setSettings({
+              theme: response.data.theme,
+              notification: response.data.notification,
+              language: response.data.language,
+            });
+          } else {
+            setError(response.message || "Failed to fetch settings.")
+          }
       } catch (err: any) {
         console.error("Error fetching settings:", err)
         setError(err.message || "Failed to fetch settings.")
@@ -60,40 +62,50 @@ export default function Settings() {
     }
 
     fetchSettings()
-  }, [])
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { id, value } = e.target
     setSettings((prevSettings) => ({
       ...prevSettings,
-      [id]: id === "notification" ? Number.parseInt(value) : value,
+      [id]: id === "notification" ? Number(value) : value,
+      [id]: value
     }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSaving(true)
-    setError(null)
-    setSuccessMessage(null)
+     e.preventDefault(); // Prevent default form submission
+    setIsSaving(true);
+    setError(null);
+    setSuccessMessage(null);
+
 
     try {
-      const response: SettingsResponse = await fetchData("/settings/index.php", "PUT", settings)
-
-      if (response.status === 200 || response.status === 201) {
-        setSuccessMessage(response.message || "Settings updated successfully!")
-      } else {
-        setError(response.message || "Failed to update settings.")
-      }
+      const response: SettingsResponse = await fetchData(
+        "/settings/index.php",
+        "PUT",
+        settings
+      );
+        if (response.status === 200 || response.status === 201) {
+            setSuccessMessage(response.message || "Settings updated successfully!");
+            // Set the context theme if the database update was successful
+            if (settings.theme !== contextTheme) {
+               setTheme(settings.theme as "light" | "dark" | "system");
+            }
+        } else {
+          setError(response.message || "Failed to update settings.");
+        }
     } catch (err: any) {
-      console.error("Error updating settings:", err)
-      setError(err.message || "Failed to update settings.")
+      console.error("Error updating settings:", err);
+      setError(err.message || "Failed to update settings.");
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
+
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white flex flex-col">
+    <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white dark:from-rose-950 dark:to-black flex flex-col">
       <AppHeader />
       <motion.section
         className="flex-grow container mx-auto px-4 py-8 md:py-12"
@@ -101,40 +113,44 @@ export default function Settings() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        <div className="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
+        <div className="max-w-md mx-auto bg-white dark:bg-zinc-800 rounded-lg shadow-md overflow-hidden">
           <div className="p-6">
-            <h2 className="text-2xl font-bold text-rose-800 text-center mb-2">User Settings</h2>
-            <p className="text-gray-600 text-center mb-6">Customize your app experience</p>
+            <h2 className="text-2xl font-bold text-rose-800 dark:text-rose-200 text-center mb-2">User Settings</h2>
+            <p className="text-gray-600 dark:text-gray-400 text-center mb-6">Customize your app experience</p>
             {loading ? (
               <div className="flex justify-center items-center h-40">
-                <Loader2 className="w-8 h-8 text-rose-600 animate-spin" />
+                <Loader2 className="w-8 h-8 text-rose-600 dark:text-rose-400 animate-spin" />
               </div>
             ) : error ? (
-              <p className="text-center text-red-600">{error}</p>
+              <p className="text-center text-red-600 dark:text-red-400">{error}</p>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
-                  <label htmlFor="theme" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="theme" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Theme
                   </label>
                   <select
                     id="theme"
-                    className="w-full p-3 border border-gray-300 rounded-md text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-rose-200"
+                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-700"
                     value={settings.theme}
                     onChange={handleInputChange}
                   >
-                    <option value="light">Light</option>
-                    <option value="dark">Dark</option>
+                     <option value="system">System</option>
+                     <option value="light">Light</option>
+                     <option value="dark">Dark</option>
                   </select>
                 </div>
 
                 <div>
-                  <label htmlFor="notification" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="notification"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+                  >
                     Notifications
                   </label>
                   <select
                     id="notification"
-                    className="w-full p-3 border border-gray-300 rounded-md text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-rose-200"
+                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-700"
                     value={settings.notification}
                     onChange={handleInputChange}
                   >
@@ -144,12 +160,12 @@ export default function Settings() {
                 </div>
 
                 <div>
-                  <label htmlFor="language" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label htmlFor="language" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Language
                   </label>
                   <select
                     id="language"
-                    className="w-full p-3 border border-gray-300 rounded-md text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-rose-200"
+                    className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md text-gray-700 dark:text-gray-200 bg-white dark:bg-zinc-700 focus:outline-none focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-700"
                     value={settings.language}
                     onChange={handleInputChange}
                   >
@@ -163,14 +179,14 @@ export default function Settings() {
                   <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    className="text-green-600 text-sm text-center"
+                    className="text-green-600 dark:text-green-400 text-sm text-center"
                   >
                     {successMessage}
                   </motion.p>
                 )}
                 <button
                   type="submit"
-                  className="w-full bg-rose-200 text-rose-700 py-3 rounded-md hover:bg-rose-300 transition duration-300 font-medium flex items-center justify-center"
+                  className="w-full bg-rose-200 dark:bg-rose-800 text-rose-700 dark:text-rose-200 py-3 rounded-md hover:bg-rose-300 dark:hover:bg-rose-700 transition duration-300 font-medium flex items-center justify-center"
                   disabled={isSaving}
                 >
                   {isSaving ? (
@@ -194,4 +210,3 @@ export default function Settings() {
     </main>
   )
 }
-

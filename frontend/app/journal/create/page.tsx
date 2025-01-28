@@ -43,7 +43,7 @@ export default function NewEntry() {
   
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white flex flex-col">
+    <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white dark:from-rose-950 dark:to-black flex flex-col">
       <AppHeader />
 
       <motion.section
@@ -56,25 +56,25 @@ export default function NewEntry() {
           <div className="mb-6">
             <Link
               href="/journal"
-              className="inline-flex items-center text-rose-600 hover:text-rose-800 transition-colors duration-300"
+              className="inline-flex items-center text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 transition-colors duration-300"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Journal
             </Link>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
-            <h1 className="text-3xl font-bold text-rose-800 mb-6">New Journal Entry</h1>
+          <div className="bg-white dark:bg-zinc-800 rounded-lg shadow-md p-6 md:p-8">
+            <h1 className="text-3xl font-bold text-rose-800 dark:text-rose-200 mb-6">New Journal Entry</h1>
 
             <form onSubmit={handleSubmit} className="space-y-6">
               <div>
-                <label htmlFor="entry-text" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="entry-text" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                   What's on your mind today?
                 </label>
                 <textarea
                   id="entry-text"
                   rows={10}
-                  className="w-full p-3 border border-gray-300 text-black rounded-md focus:outline-none focus:ring-2 focus:ring-rose-200 resize-none"
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 text-black dark:text-white bg-white dark:bg-zinc-700 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-200 dark:focus:ring-rose-700 resize-none placeholder-gray-400 dark:placeholder-gray-500"
                   placeholder="Start writing your journal entry here..."
                   value={entryText}
                   onChange={(e) => setEntryText(e.target.value)}
@@ -86,8 +86,8 @@ export default function NewEntry() {
                   type="submit"
                   className={`inline-flex items-center px-4 py-2 rounded-md transition duration-300 ${
                     isSubmitting
-                      ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                      : "bg-rose-200 text-rose-700 hover:bg-rose-300"
+                      ? "bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                      : "bg-rose-200 dark:bg-rose-800 text-rose-700 dark:text-rose-200 hover:bg-rose-300 dark:hover:bg-rose-700"
                   }`}
                   disabled={isSubmitting}
                 >

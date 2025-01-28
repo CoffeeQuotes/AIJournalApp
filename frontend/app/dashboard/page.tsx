@@ -44,7 +44,7 @@ export default function Dashboard() {
   }
   // console.log(getCookie("authToken"));
   return (
-    <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white flex flex-col">
+    <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white dark:from-rose-950 dark:to-black flex flex-col">
       <AppHeader />
       <section className="flex-grow container mx-auto px-4 py-8 md:py-12">
         <motion.div
@@ -54,11 +54,11 @@ export default function Dashboard() {
           transition={{ duration: 0.5 }}
         >
           <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-rose-800">
+            <h1 className="text-3xl font-bold text-rose-800 dark:text-rose-200">
               Welcome, {user.username.charAt(0).toUpperCase() + user.username.slice(1)}!
             </h1>
             <button
-              className="flex items-center px-4 py-2 bg-rose-200 text-rose-700 rounded-md hover:bg-rose-300 transition duration-300"
+              className="flex items-center px-4 py-2 bg-rose-200 dark:bg-rose-800 text-rose-700 dark:text-rose-200 rounded-md hover:bg-rose-300 dark:hover:bg-rose-700 transition duration-300"
               onClick={handleLogout}
             >
               <LogOut className="w-4 h-4 mr-2" />
@@ -104,15 +104,15 @@ function DashboardCard({ title, description, icon, link }: DashboardCardProps) {
   return (
     <Link href={link} className="block">
       <motion.div
-        className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
+        className="bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300"
         whileHover={{ scale: 1.03 }}
         transition={{ type: "spring", stiffness: 300 }}
       >
-        <div className="flex items-center mb-4 text-rose-600">
+        <div className="flex items-center mb-4 text-rose-600 dark:text-rose-400">
           {icon}
           <h3 className="text-xl font-semibold ml-2">{title}</h3>
         </div>
-        <p className="text-gray-600">{description}</p>
+        <p className="text-gray-600 dark:text-gray-300">{description}</p>
       </motion.div>
     </Link>
   );
