@@ -10,6 +10,7 @@
 /backend/AI/*.pyc
 /backend/AI/*.pyo
 /backend/AI/*.pyd
+/backend/AI/client.py
 
 # IDE and system files
 .idea/

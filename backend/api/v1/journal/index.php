@@ -44,16 +44,48 @@ try {
             }
         } else {
             // Fetch all journal entries for the authenticated user
-            $stmt = $pdo->prepare("SELECT * FROM journal_entries WHERE user_id = :user_id ORDER BY created_at DESC");
+            // Get pagination parameters
+            $page = isset($_GET['page']) ? (int) $_GET['page'] : 1;
+            $limit = isset($_GET['limit']) ? (int) $_GET['limit'] : 10;
+            $offset = ($page - 1) * $limit;
+
+            // Get sorting parameters
+            $sortBy = isset($_GET['sort_by']) ? $_GET['sort_by'] : 'created_at';
+            $order = isset($_GET['order']) && in_array(strtoupper($_GET['order']), ['ASC', 'DESC']) ? strtoupper($_GET['order']) : 'DESC';
+
+            // Validate sortable columns
+            $allowedSortColumns = ['id', 'created_at', 'sentiment_score'];
+            if (!in_array($sortBy, $allowedSortColumns)) {
+                $sortBy = 'created_at';
+            }
+
+            // Prepare SQL query
+            $stmt = $pdo->prepare("SELECT * FROM journal_entries WHERE user_id = :user_id ORDER BY $sortBy $order LIMIT :limit OFFSET :offset");
             $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+            $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
             $stmt->execute();
             $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+            // Get total count
+            $countStmt = $pdo->prepare("SELECT COUNT(*) as total FROM journal_entries WHERE user_id = :user_id");
+            $countStmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+            $countStmt->execute();
+            $totalCount = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+            // Respond with paginated results
             $appSettings->respond([
                 'data' => $rows,
+                'pagination' => [
+                    'current_page' => $page,
+                    'per_page' => $limit,
+                    'total_entries' => (int) $totalCount,
+                    'total_pages' => ceil($totalCount / $limit)
+                ],
                 'message' => 'Journal entries retrieved successfully!',
                 'status' => 200
             ]);
+
         }
     } elseif ($method === 'POST') {
 
