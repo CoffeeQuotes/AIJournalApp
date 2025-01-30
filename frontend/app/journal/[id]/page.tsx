@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Header from "@/components/Header";
+// import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { motion } from "framer-motion";
-import { ArrowLeft, Calendar, Clock, Trash2 } from "lucide-react";
+import { ArrowLeft, Calendar, Clock, Trash2, Smile, Meh, Frown } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchData } from "@/utils/api";
 import { useRouter } from "next/navigation";
+import AppHeader from "@/components/AppHeader";
 
 interface SingleEntry {
   id: number;
@@ -16,7 +17,20 @@ interface SingleEntry {
   time: string;
   title: string;
   content: string;
+  mood: string;
 }
+
+const getMoodEmoji = (mood: string) => {
+  switch (mood.toLowerCase()) {
+    case 'positive':
+      return <Smile className="w-6 h-6 text-green-500" />;
+    case 'negative':
+      return <Frown className="w-6 h-6 text-red-500" />;
+    default:
+      return <Meh className="w-6 h-6 text-yellow-500" />;
+  }
+};
+
 
 export default function JournalEntry({ params }: { params: Promise<{ id: string }> }) {
   const { user } = useAuth();
@@ -42,6 +56,7 @@ export default function JournalEntry({ params }: { params: Promise<{ id: string 
             time: new Date(data.created_at).toLocaleTimeString(),
             title: generateTitle(data.entry_text),
             content: data.entry_text,
+            mood: data.mood
           };
           setEntry(formattedEntry);
         } else {
@@ -104,7 +119,7 @@ export default function JournalEntry({ params }: { params: Promise<{ id: string 
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white dark:from-rose-950 dark:to-black flex flex-col">
-      <Header />
+      <AppHeader />
 
       <motion.section
         className="flex-grow container mx-auto px-4 py-8 md:py-12"
@@ -131,6 +146,10 @@ export default function JournalEntry({ params }: { params: Promise<{ id: string 
               <span className="mr-4">{entry.date}</span>
               <Clock className="w-4 h-4 mr-2" />
               <span>{entry.time}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-600 dark:text-gray-400">&nbsp; Mood:</span>
+                {getMoodEmoji(entry.mood)}
+              </div>
             </div>
 
             <div className="prose dark:prose-invert max-w-none">

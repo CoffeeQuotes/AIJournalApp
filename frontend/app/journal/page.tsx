@@ -160,17 +160,38 @@ export default function Journal() {
           )}
 
           {/* Pagination Controls */}
+          {/* <div className="flex justify-between items-center mt-8"> */}
+            {/* This shouldn't be shown if it is first page */}
+
+            {/* <Button disabled={page === 1} onClick={() => setPage(page - 1)}>
+              Previous
+            </Button> */}
+            {/* <span className="text-gray-700 dark:text-gray-300">
+              Page {page} of {totalPages}
+            </span> */}
+            {/* This shouldn't be shown if it last page  */}
+            {/* <Button disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
+              Next
+            </Button> */}
+          {/* </div> */}
           <div className="flex justify-between items-center mt-8">
-            <Button disabled={page === 1} onClick={() => setPage(page - 1)}>
+          {page > 1 && (
+            <Button onClick={() => setPage(page - 1)}>
               Previous
             </Button>
-            <span className="text-gray-700 dark:text-gray-300">
-              Page {page} of {totalPages}
-            </span>
-            <Button disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
+          )}
+
+          <span className="text-gray-700 dark:text-gray-300">
+            Page {page} of {totalPages}
+          </span>
+
+          {page < totalPages && (
+            <Button onClick={() => setPage(page + 1)}>
               Next
             </Button>
-          </div>
+          )}
+        </div>
+
         </motion.div>
       </section>
       <Footer />
@@ -194,16 +215,16 @@ function EntryCard({ entry }: { entry: Entry }) {
       <p className="text-gray-600 dark:text-gray-300 mb-4 flex-grow">{entry.preview}</p>
       <div className="space-y-3">
         {/* Bidirectional Sentiment Bar */}
-        <div className="space-y-1">
+        {/* <div className="space-y-1">
           <div className="flex justify-between items-center text-sm">
             <span className="text-red-500 dark:text-red-400">Negative</span>
             <span className="text-green-500 dark:text-green-400">Positive</span>
           </div>
-          <div className="relative w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+          <div className="relative w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"> */}
             {/* Center line */}
-            <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gray-400 dark:bg-gray-500" />
+            {/* <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gray-400 dark:bg-gray-500" /> */}
             {/* Sentiment bar */}
-            {isPositive ? (
+            {/* {isPositive ? (
               <div 
                 className="absolute left-1/2 top-0 bottom-0 bg-green-500 transition-all duration-300"
                 style={{ width: `${intensity / 2}%` }}
@@ -218,7 +239,7 @@ function EntryCard({ entry }: { entry: Entry }) {
           <div className="text-center text-sm text-gray-600 dark:text-gray-400">
             {isPositive ? 'Positive' : 'Negative'} ({intensity}% confident)
           </div>
-        </div>
+        </div> */}
         {/* Mood with Emoji */}
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">

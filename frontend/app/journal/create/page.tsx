@@ -8,8 +8,8 @@ import { motion } from "framer-motion";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { fetchData } from "@/utils/api"; // Assuming fetchData is a utility for API calls
-import { useAuth } from "@/hooks/useAuth"; // Assuming useAuth provides the user token
+import { fetchData } from "@/utils/api"; //fetchData is a utility for API calls
+import { useAuth } from "@/hooks/useAuth"; //useAuth provides the user token
 
 export default function NewEntry() {
   const [entryText, setEntryText] = useState("");
