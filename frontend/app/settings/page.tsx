@@ -8,6 +8,7 @@ import { motion } from "framer-motion"
 import { fetchData } from "@/utils/api"
 import { Check, Loader2 } from "lucide-react"
 import { useTheme } from "../context/ThemeContext"
+import useSocket from "@/hooks/useSocket"
 
 interface SettingsResponse {
   data: {
@@ -63,7 +64,7 @@ export default function Settings() {
 
     fetchSettings()
   }, []);
-
+  useSocket();
   const handleInputChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { id, value } = e.target
     setSettings((prevSettings) => ({

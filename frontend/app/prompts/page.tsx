@@ -5,6 +5,7 @@ import AppHeader from "@/components/AppHeader"
 import { motion } from "framer-motion"
 import { Sparkles, Copy, Check } from "lucide-react"
 import { fetchData } from "@/utils/api"
+import useSocket from "@/hooks/useSocket"
 
 interface PromptResponse {
   data: { id: number; text: string; category: string; created_at: string }
@@ -44,6 +45,8 @@ export default function Prompt() {
     fetchRandomPrompt()
   }, []) //Fixed: Added empty dependency array to run only once on mount
 
+  useSocket();
+  
   const copyToClipboard = async () => {
     if (currentPrompt) {
       try {

@@ -10,6 +10,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchData } from "@/utils/api";
 import Button from "@/components/ui/button";
+import useSocket from "@/hooks/useSocket";
 
 interface Entry {
   id: number;
@@ -82,7 +83,7 @@ export default function Journal() {
 
     fetchJournalEntries();
   }, [user, page, sortBy, order]);
-
+  useSocket();
   const generateTitle = (entryText: string): string => {
     const firstSentence = entryText.split(".")[0];
     return firstSentence.length > 50 ? `${firstSentence.slice(0, 47)}...` : firstSentence;

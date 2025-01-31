@@ -34,7 +34,16 @@ class Auth
             $stmt->bindParam(":email", $email);
             $stmt->bindParam(":password", $hashedPassword);
             $stmt->execute();
-            return $this->pdo->lastInsertId();
+            $lastInsertedId = $this->pdo->lastInsertId();
+
+            // Update the setting table with default values 
+            $stmt = $this->pdo->prepare("
+                INSERT INTO settings (user_id, theme, notification, language)
+                VALUES (:user_id, 'system', 1, 'en')
+            ");
+            $stmt->bindParam(":user_id", $lastInsertedId);
+            $stmt->execute();
+            return $lastInsertedId;
         }
         throw new \Exception("Username or email already exist, Login!");
     }

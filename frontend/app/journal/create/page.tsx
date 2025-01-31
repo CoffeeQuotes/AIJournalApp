@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { fetchData } from "@/utils/api"; //fetchData is a utility for API calls
 import { useAuth } from "@/hooks/useAuth"; //useAuth provides the user token
+import useSocket from "@/hooks/useSocket";
 
 export default function NewEntry() {
   const [entryText, setEntryText] = useState("");
@@ -40,7 +41,7 @@ export default function NewEntry() {
       alert("An error occurred while creating the entry. Please try again.");
     }
   };
-  
+  useSocket();
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white dark:from-rose-950 dark:to-black flex flex-col">

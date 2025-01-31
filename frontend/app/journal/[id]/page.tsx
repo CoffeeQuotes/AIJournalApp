@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { fetchData } from "@/utils/api";
 import { useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
+import useSocket from "@/hooks/useSocket";
 
 interface SingleEntry {
   id: number;
@@ -71,7 +72,7 @@ export default function JournalEntry({ params }: { params: Promise<{ id: string 
 
     fetchJournalEntry();
   }, [user, params]);
-
+  useSocket();
   const generateTitle = (entryText: string): string => {
     const firstSentence = entryText.split(".")[0];
     return firstSentence.length > 50 ? `${firstSentence.slice(0, 47)}...` : firstSentence;

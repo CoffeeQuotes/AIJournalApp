@@ -4,6 +4,9 @@ import Footer from "@/components/Footer"
 import { motion } from "framer-motion"
 import { fetchData } from "@/utils/api"
 import { Bar, Pie } from "react-chartjs-2"
+import useSocket from "@/hooks/useSocket"
+
+
 import {
   Chart as ChartJS,
   ArcElement,
@@ -72,6 +75,7 @@ export default function Analysis() {
     fetchAnalysisData()
   }, [])
 
+  useSocket();
   // Bar chart data preparation
   const barChartData = {
     labels: Array.from(new Set(moodSummary.map((entry) => entry.recorded_date))).sort(),

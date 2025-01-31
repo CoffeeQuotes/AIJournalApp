@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import { Toaster } from 'sonner';
 
 export default function Header() {
   return (
@@ -37,6 +38,7 @@ export default function Header() {
           Settings
         </Link>
       </nav>
+      <Toaster richColors position="top-center" />
     </header>
   );
 }

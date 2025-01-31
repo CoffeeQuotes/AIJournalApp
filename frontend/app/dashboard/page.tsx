@@ -10,6 +10,8 @@ import AppHeader from "@/components/AppHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchData } from "@/utils/api";
 import { getCookie } from "cookies-next";
+import useSocket from "@/hooks/useSocket";
+
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -20,6 +22,7 @@ export default function Dashboard() {
       router.replace("/login");
     }
   }, [user, router]);
+  useSocket();
 
   const handleLogout = async () => {
     try {
