@@ -1,8 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Link from "next/link"
-import { Toaster } from "sonner"
+import { Toaster, toast } from "sonner"
+import { Bell } from "lucide-react"
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
+import { useAuth } from "@/hooks/useAuth"
+import { fetchData } from "@/utils/api"
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard" },
@@ -11,9 +15,113 @@ const navItems = [
   { href: "/prompts", label: "Prompts" },
   { href: "/settings", label: "Settings" },
 ]
+interface Notification {
+  id: number
+  user_id: number
+  title: string
+  message: string
+  is_read: number
+  created_at: string
+}
+
+interface NotificationResponse {
+  data: {
+    notifications: Notification[]
+    total: number
+  }
+  message: string
+  status: number
+}
 
 export default function Header() {
+  const { user } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    setIsAuthenticated(!!user?.token)
+  }, [user])
+
+  const fetchNotifications = async () => {
+    if (!isAuthenticated) return
+
+    try {
+      const response = await fetchData<NotificationResponse>(
+        "notification/index.php?action=get-unread-notifications",
+        "POST"
+      )
+
+      if (response.status === 200 && response.data?.notifications) {
+        setNotifications(response.data.notifications)
+      } else {
+        console.error("Failed to fetch notifications:", response.message)
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error)
+    }
+  }
+
+  useEffect(() => {
+    fetchNotifications()
+    const interval = setInterval(fetchNotifications, 30000)
+    return () => clearInterval(interval)
+  }, [isAuthenticated])
+
+  const handleNotificationClick = async (notification: Notification) => {
+    if (isLoading) return
+    setIsLoading(true)
+
+    try {
+      const response = await fetchData(
+        "notification/index.php?action=mark-as-read",
+        "POST",
+        {
+          notification_id: notification.id
+        }
+      )
+
+      if (response.status === 200) {
+        // Remove the notification from the list
+        setNotifications(prev => prev.filter(n => n.id !== notification.id))
+        toast.success("Notification marked as read")
+      } else {
+        toast.error("Failed to mark notification as read")
+      }
+    } catch (error) {
+      console.error("Error marking notification as read:", error)
+      toast.error("Failed to mark notification as read")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  }
+
+  const renderNotificationItem = (notification: Notification) => (
+    <DropdownMenu.Item
+      key={notification.id}
+      className="text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-2 py-2 outline-none cursor-pointer"
+      onClick={() => handleNotificationClick(notification)}
+    >
+      <div className="flex flex-col gap-1">
+        <span className="font-medium">{notification.title}</span>
+        <span className="text-gray-600 dark:text-gray-400">{notification.message}</span>
+        <span className="text-xs text-gray-500 dark:text-gray-400">
+          {formatDate(notification.created_at)}
+        </span>
+      </div>
+    </DropdownMenu.Item>
+  )
 
   return (
     <header className="container mx-auto px-4 py-6">
@@ -31,10 +139,84 @@ export default function Header() {
               {item.label}
             </Link>
           ))}
+
+          {/* Notifications Dropdown */}
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button 
+                className="p-2 text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 transition duration-300 relative"
+                disabled={isLoading}
+              >
+                <Bell className="h-5 w-5" />
+                {notifications.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                    {notifications.length}
+                  </span>
+                )}
+                <span className="sr-only">Notifications</span>
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content 
+                className="min-w-[300px] bg-white dark:bg-gray-800 rounded-md p-1 shadow-md"
+                onOpenAutoFocus={e => e.preventDefault()}
+              >
+                {notifications.length === 0 ? (
+                  <DropdownMenu.Item className="text-sm text-gray-700 dark:text-gray-200 px-2 py-1">
+                    No new notifications
+                  </DropdownMenu.Item>
+                ) : (
+                  notifications.map(renderNotificationItem)
+                )}
+                <DropdownMenu.Item className="text-sm text-center text-rose-600 dark:text-rose-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-2 py-1 outline-none cursor-default">
+                  <Link href="/notifications" className="block w-full">
+                    View all notifications
+                  </Link>
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
         </nav>
 
         {/* Mobile Navigation */}
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center">
+          {/* Notifications Dropdown for Mobile */}
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button 
+                className="p-2 mr-2 text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 transition duration-300 relative"
+                disabled={isLoading}
+              >
+                <Bell className="h-5 w-5" />
+                {notifications.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                    {notifications.length}
+                  </span>
+                )}
+                <span className="sr-only">Notifications</span>
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content 
+                className="min-w-[300px] bg-white dark:bg-gray-800 rounded-md p-1 shadow-md"
+                onOpenAutoFocus={e => e.preventDefault()}
+              >
+                {notifications.length === 0 ? (
+                  <DropdownMenu.Item className="text-sm text-gray-700 dark:text-gray-200 px-2 py-1">
+                    No new notifications
+                  </DropdownMenu.Item>
+                ) : (
+                  notifications.map(renderNotificationItem)
+                )}
+                <DropdownMenu.Item className="text-sm text-center text-rose-600 dark:text-rose-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-2 py-1 outline-none cursor-default">
+                  <Link href="/notifications" className="block w-full">
+                    View all notifications
+                  </Link>
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
+
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 transition duration-300"
@@ -64,10 +246,9 @@ export default function Header() {
               ))}
             </div>
           )}
-        </div>
+       </div>
       </div>
       <Toaster richColors position="top-center" />
     </header>
   )
 }
-
