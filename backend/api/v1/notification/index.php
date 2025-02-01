@@ -85,6 +85,13 @@ try {
         $limit = 5;
         $offset = ($page - 1) * $limit;
 
+          // Get Total Notification count
+        $totalStmt = $pdo->prepare("SELECT COUNT(*) as total FROM notifications WHERE user_id = :user_id");
+        $totalStmt->bindParam(':user_id', $userId);
+        $totalStmt->execute();
+        $totalResult = $totalStmt->fetch(PDO::FETCH_ASSOC);
+        $total = $totalResult['total'];
+
         $stmt = $pdo->prepare("
             SELECT *
             FROM notifications
@@ -101,7 +108,7 @@ try {
             'notifications' => $notifications,
             'page' => $page,
             'limit' => $limit,
-            'total' => count($notifications)
+            'total' => (int)$total
         ];
 
         $appSettings->respond([
@@ -173,6 +180,40 @@ try {
             'message' => 'Notification marked as read successfully',
             'status' => 200
         ]);
+    }  elseif ($action === 'delete-notification') {
+          // POST /api/v1/notification?action=delete-notification
+        $authMiddleware = new AuthMiddleware();
+          $userId = $authMiddleware->authenticate();
+          $input = json_decode(file_get_contents('php://input'), true);
+          $notificationId = $input['notification_id'] ?? '';
+
+          if (empty($notificationId)) {
+            $appSettings->respond([
+                'message' => 'Missing required fields',
+                'status' => 400
+            ]);
+            exit;
+         }
+
+          $stmt = $pdo->prepare("
+             DELETE FROM notifications
+              WHERE id = :notification_id AND user_id = :user_id
+          ");
+          $stmt->bindParam(':notification_id', $notificationId);
+          $stmt->bindParam(':user_id', $userId);
+          $stmt->execute();
+          if ($stmt->rowCount() === 0) {
+            $appSettings->respond([
+                'message' => 'Notification not found',
+                'status' => 404
+            ]);
+            exit;
+          }
+
+          $appSettings->respond([
+              'message' => 'Notification deleted successfully',
+              'status' => 200
+         ]);
     } elseif ($action === 'mark-all-as-read') {
         // POST /api/v1/notification?action=mark-all-as-read
         $authMiddleware = new AuthMiddleware();

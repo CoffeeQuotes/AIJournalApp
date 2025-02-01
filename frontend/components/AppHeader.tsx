@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import Link from "next/link"
 import { Toaster, toast } from "sonner"
 import { Bell } from "lucide-react"
@@ -15,6 +15,7 @@ const navItems = [
   { href: "/prompts", label: "Prompts" },
   { href: "/settings", label: "Settings" },
 ]
+
 interface Notification {
   id: number
   user_id: number
@@ -44,13 +45,13 @@ export default function Header() {
     setIsAuthenticated(!!user?.token)
   }, [user])
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     if (!isAuthenticated) return
 
     try {
       const response = await fetchData<NotificationResponse>(
         "notification/index.php?action=get-unread-notifications",
-        "POST"
+        "POST",
       )
 
       if (response.status === 200 && response.data?.notifications) {
@@ -61,30 +62,25 @@ export default function Header() {
     } catch (error) {
       console.error("Error fetching notifications:", error)
     }
-  }
+  }, [isAuthenticated])
 
   useEffect(() => {
     fetchNotifications()
     const interval = setInterval(fetchNotifications, 30000)
     return () => clearInterval(interval)
-  }, [isAuthenticated])
+  }, [fetchNotifications])
 
   const handleNotificationClick = async (notification: Notification) => {
     if (isLoading) return
     setIsLoading(true)
 
     try {
-      const response = await fetchData(
-        "notification/index.php?action=mark-as-read",
-        "POST",
-        {
-          notification_id: notification.id
-        }
-      )
+      const response = await fetchData("notification/index.php?action=mark-as-read", "POST", {
+        notification_id: notification.id,
+      })
 
       if (response.status === 200) {
-        // Remove the notification from the list
-        setNotifications(prev => prev.filter(n => n.id !== notification.id))
+        setNotifications((prev) => prev.filter((n) => n.id !== notification.id))
         toast.success("Notification marked as read")
       } else {
         toast.error("Failed to mark notification as read")
@@ -99,11 +95,11 @@ export default function Header() {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString(undefined, {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     })
   }
 
@@ -116,9 +112,7 @@ export default function Header() {
       <div className="flex flex-col gap-1">
         <span className="font-medium">{notification.title}</span>
         <span className="text-gray-600 dark:text-gray-400">{notification.message}</span>
-        <span className="text-xs text-gray-500 dark:text-gray-400">
-          {formatDate(notification.created_at)}
-        </span>
+        <span className="text-xs text-gray-500 dark:text-gray-400">{formatDate(notification.created_at)}</span>
       </div>
     </DropdownMenu.Item>
   )
@@ -143,7 +137,7 @@ export default function Header() {
           {/* Notifications Dropdown */}
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
-              <button 
+              <button
                 className="p-2 text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 transition duration-300 relative"
                 disabled={isLoading}
               >
@@ -157,9 +151,10 @@ export default function Header() {
               </button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
-              <DropdownMenu.Content 
-                className="min-w-[300px] bg-white dark:bg-gray-800 rounded-md p-1 shadow-md"
-                onOpenAutoFocus={e => e.preventDefault()}
+              <DropdownMenu.Content
+                className="min-w-[300px] max-h-[400px] overflow-y-auto bg-white dark:bg-zinc-800 rounded-md p-1 shadow-md"
+                onOpenAutoFocus={(e) => e.preventDefault()}
+                sideOffset={5}
               >
                 {notifications.length === 0 ? (
                   <DropdownMenu.Item className="text-sm text-gray-700 dark:text-gray-200 px-2 py-1">
@@ -183,7 +178,7 @@ export default function Header() {
           {/* Notifications Dropdown for Mobile */}
           <DropdownMenu.Root>
             <DropdownMenu.Trigger asChild>
-              <button 
+              <button
                 className="p-2 mr-2 text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 transition duration-300 relative"
                 disabled={isLoading}
               >
@@ -197,9 +192,11 @@ export default function Header() {
               </button>
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
-              <DropdownMenu.Content 
-                className="min-w-[300px] bg-white dark:bg-gray-800 rounded-md p-1 shadow-md"
-                onOpenAutoFocus={e => e.preventDefault()}
+              <DropdownMenu.Content
+                className="min-w-[300px] max-h-[400px] overflow-y-auto bg-white dark:bg-gray-800 rounded-md p-1 shadow-md"
+                onOpenAutoFocus={(e) => e.preventDefault()}
+                sideOffset={5}
+                align="end"
               >
                 {notifications.length === 0 ? (
                   <DropdownMenu.Item className="text-sm text-gray-700 dark:text-gray-200 px-2 py-1">
@@ -232,23 +229,27 @@ export default function Header() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          {isOpen && (
-            <div className="absolute right-4 mt-2 py-2 w-48 bg-white dark:bg-gray-800 rounded-md shadow-xl z-20">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </div>
-          )}
-       </div>
+        </div>
       </div>
+
+      {/* Mobile Navigation Menu */}
+      {isOpen && (
+        <nav className="md:hidden mt-4">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="block py-2 text-rose-600 dark:text-rose-400 hover:text-rose-800 dark:hover:text-rose-200 transition duration-300"
+              onClick={() => setIsOpen(false)}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+      )}
+
       <Toaster richColors position="top-center" />
     </header>
   )
 }
+
