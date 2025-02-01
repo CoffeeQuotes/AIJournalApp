@@ -1,10 +1,15 @@
-import React from 'react';
-import Link from 'next/link';
+import React from "react";
+import Link from "next/link";
 
 export default function Header() {
   return (
-    <header className="container mx-auto px-4 py-6 flex justify-between items-center">
-      <h2 className="text-2xl font-bold text-rose-600 dark:text-rose-400">NotesApp</h2>
+    <header className="fixed inset-x-0 top-0 z-10 border-b border-gray-950/5 dark:border-white/10 mx-auto px-4 py-6 flex justify-between items-center backdrop-blur-sm">
+      <Link
+          href="/">
+      <h2 className="text-2xl font-bold text-rose-600 dark:text-rose-400">
+        NotesApp
+      </h2>
+      </Link>
       <nav>
         <Link
           href="/login"

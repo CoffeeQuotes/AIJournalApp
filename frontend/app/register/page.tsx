@@ -32,7 +32,7 @@ export default function Register() {
     setError(null);
     setSuccessMessage(null);
     setLoading(true);
-  
+
     try {
       const response = await fetchData<{
         message?: string;
@@ -40,7 +40,7 @@ export default function Register() {
         error?: string;
         status?: number;
       }>("authentication/index.php?action=register", "POST", formData);
-  
+
       if (response.status === 201 && response.message) {
         // Handle success
         setSuccessMessage(response.message);
@@ -58,10 +58,9 @@ export default function Register() {
       setLoading(false);
     }
   };
-  
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white dark:from-rose-950 dark:to-black flex flex-col">
+    <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white dark:from-rose-950 dark:to-black">
       <Header />
 
       <section className="flex-grow container mx-auto px-4 py-12 md:py-24 flex flex-col items-center justify-center">
@@ -71,10 +70,18 @@ export default function Register() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h2 className="text-3xl font-bold mb-6 text-rose-800 dark:text-rose-200 text-center">Register</h2>
-          <form className="bg-white dark:bg-zinc-900 shadow-md rounded-lg p-8 space-y-4" onSubmit={handleSubmit}>
+          <h2 className="text-3xl font-bold mb-6 text-rose-800 dark:text-rose-200 text-center">
+            Register
+          </h2>
+          <form
+            className="bg-white dark:bg-zinc-900 shadow-md rounded-lg p-8 space-y-4"
+            onSubmit={handleSubmit}
+          >
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 Username
               </label>
               <input
@@ -88,7 +95,10 @@ export default function Register() {
               />
             </div>
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 Email
               </label>
               <input
@@ -102,7 +112,10 @@ export default function Register() {
               />
             </div>
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 Password
               </label>
               <input
@@ -115,9 +128,15 @@ export default function Register() {
                 required
               />
             </div>
-            {error && <p className="text-red-600 dark:text-red-400 text-sm text-center">{error}</p>}
+            {error && (
+              <p className="text-red-600 dark:text-red-400 text-sm text-center">
+                {error}
+              </p>
+            )}
             {successMessage && (
-              <p className="text-green-600 dark:text-green-400 text-sm text-center">{successMessage}</p>
+              <p className="text-green-600 dark:text-green-400 text-sm text-center">
+                {successMessage}
+              </p>
             )}
             <button
               type="submit"
@@ -129,11 +148,17 @@ export default function Register() {
           </form>
           <p className="mt-4 text-center text-gray-600 dark:text-gray-400">
             Already have an account?{" "}
-            <Link href="/login" className="text-rose-600 dark:text-rose-400 hover:underline">
+            <Link
+              href="/login"
+              className="text-rose-600 dark:text-rose-400 hover:underline"
+            >
               Login here
             </Link>
             &nbsp;or&nbsp;
-            <Link href="/reset-password/request" className="text-rose-600 dark:text-rose-400 hover:underline">
+            <Link
+              href="/reset-password/request"
+              className="text-rose-600 dark:text-rose-400 hover:underline"
+            >
               Forgot your password?
             </Link>
           </p>
