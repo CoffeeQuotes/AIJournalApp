@@ -9,6 +9,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { fetchData } from "@/utils/api";
 import { setCookie } from "cookies-next";
+import { toast } from "sonner";
 
 export default function Login() {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -48,10 +49,11 @@ export default function Login() {
 
         // Update user state
         login(response.data.token, response.data.username);
-
+        toast.success("Welcome, " + response.data.username + "!");
         setSuccessMessage(response.message || "Login Successful!");
         router.push(next);
       } else {
+        toast.error(response.error || response.message || "Invalid email or password.");
         setError(
           response.error || response.message || "Invalid email or password.",
         );

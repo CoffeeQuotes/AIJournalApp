@@ -118,6 +118,29 @@ export default function Notifications() {
     }
   }
 
+  // Mark all as read notifications
+  const markAllNotificationsRead = async () => {
+    try {
+      const response = await fetchData(
+        "notification/index.php?action=mark-all-as-read",
+        "POST"
+      )
+
+      if (response.status === 200) {
+        // notification will still shown as read 
+        setNotifications((prev) =>
+          prev.map((notif) => ({ ...notif, is_read: 1 }))
+        )
+        toast.success("All notifications marked as read")
+      } else {
+        toast.error("Failed to mark all notifications read.")
+      }
+    } catch (err) {
+      console.error("Error clearing all notifications:", err)
+      toast.error("Failed to mark all notifications read")
+    }
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString(undefined, {
       year: 'numeric',
@@ -142,7 +165,14 @@ export default function Notifications() {
             <Bell className="w-8 h-8 mr-2" />
             Notifications
           </h1>
-
+          {/* Mark all notification read */}
+          <button
+            onClick={markAllNotificationsRead}
+            className="text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 mb-4 flex items-center"
+          >
+            <CheckCircle className="w-5 h-5 mr-2" />
+            Mark all as read
+          </button>
           {loading ? (
             <div className="flex justify-center items-center h-40">
               <Loader2 className="w-8 h-8 text-rose-600 dark:text-rose-400 animate-spin" />

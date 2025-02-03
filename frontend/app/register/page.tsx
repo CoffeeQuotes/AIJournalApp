@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { fetchData } from "@/utils/api";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { toast } from "sonner";
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -43,16 +44,19 @@ export default function Register() {
 
       if (response.status === 201 && response.message) {
         // Handle success
+        toast.success(response.message);
         setSuccessMessage(response.message);
         setTimeout(() => {
           router.push("/login"); // Redirect to login page
         }, 2000);
       } else {
         // Handle error returned from the API
+        toast.error(response.error || response.message || "Registration failed.");
         setError(response.error || "Registration failed. Please try again.");
       }
     } catch (err: any) {
       // Handle network or unexpected errors
+      toast.error(err.message || "An error occurred. Please try again.");
       setError(err.message || "An error occurred. Please try again.");
     } finally {
       setLoading(false);

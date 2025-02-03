@@ -9,6 +9,7 @@ import { fetchData } from "@/utils/api"
 import { Check, Loader2 } from "lucide-react"
 import { useTheme } from "../context/ThemeContext"
 import useSocket from "@/hooks/useSocket"
+import { toast } from "sonner"
 
 interface SettingsResponse {
   data: {
@@ -52,6 +53,7 @@ export default function Settings() {
               language: response.data.language,
             });
           } else {
+            toast.error(response.message || "Failed to fetch settings.")
             setError(response.message || "Failed to fetch settings.")
           }
       } catch (err: any) {
@@ -88,12 +90,14 @@ export default function Settings() {
         settings
       );
         if (response.status === 200 || response.status === 201) {
+            toast.success(response.message || "Settings updated successfully!");
             setSuccessMessage(response.message || "Settings updated successfully!");
             // Set the context theme if the database update was successful
             if (settings.theme !== contextTheme) {
                setTheme(settings.theme as "light" | "dark" | "system");
             }
         } else {
+          toast.error(response.message || "Failed to update settings.");
           setError(response.message || "Failed to update settings.");
         }
     } catch (err: any) {

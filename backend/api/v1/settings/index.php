@@ -1,10 +1,9 @@
-<?php 
+<?php
 require_once("../../../System/requirement.php");
 
 use NotesApp\System\AppSettings;
 use NotesApp\System\Database;
 use NotesApp\System\AuthMiddleware;
-use ElephantIO\Client;
 
 try {
     $dbInstance = Database::getInstance();
@@ -14,235 +13,138 @@ try {
         'display_errors' => true,
     ]);
 
-    $action = $_GET['action'] ?? ''; 
-    
-    // Send general Notification
-    
-    if ($action === 'send-general-notification') {
-        // POST /api/v1/notification/index.php?action=send-general-notification
+    $authMiddleware = new AuthMiddleware();
+    // Authenticate first and get user ID
+    $userId = $authMiddleware->authenticate();
 
+    $method = $_SERVER['REQUEST_METHOD'];
+
+    if ($method === 'GET') {
+        // Fetch user preference
+        $stmt = $pdo->prepare("SELECT * FROM settings WHERE user_id = :user_id");
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        $appSettings->respond([
+            'data' => $row,
+            'message' => 'Settings retrieved successfully!',
+            'status' => 200
+        ]);
+    } elseif ($method === 'PUT') {
+         // Get Columns from settings table using information_schema for better performance
+        $stmt = $pdo->prepare("
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_name = 'settings'
+            AND table_schema = DATABASE()
+        ");
+        $stmt->execute();
+        $cols = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        $cols = array_diff($cols, ['id', 'user_id', 'created_at']);
+    
+        // Get and decode JSON input with error handling
         $input = json_decode(file_get_contents('php://input'), true);
-        $title = $input['title'] ?? '';
-        $message = $input['message'] ?? '';
-        // $userIds = $_POST['user_ids'] ?? [];
-        // var_dump($title, $message);
-        $stmt = $pdo->prepare("SELECT user_id FROM `settings` WHERE notification = 1");
-        $stmt->execute();
-        $userIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        // print_r($userIds);
-        if (empty($title) || empty($message) || empty($userIds)) {
-            $appSettings->respond([
-                'message' => 'Missing required fields',
-                'status' => 400
-            ]);
-            exit;
+        // Validate JSON
+        validateJSONInput($input);    
+        // Check if input is empty
+        if (count($input) === 0) {
+            throw new Exception('Invalid input: At least one parameter is required.', 400);
         }
-
-        $url = "http://localhost:8080";
-
-        $options = ['client' => Client::CLIENT_4X];
-
-        $client = Client::create($url, $options);
-
-        $client->connect();
-        
-        $client->of('/');
-
-        $data = [
-            'title' => $title,
-            'message' => $message,
-            'userIds' => $userIds
-        ];
-        $client->emit('general-notification', $data);
-
-        $client->disconnect();
-
-
-        $stmt = $pdo->prepare("
-            INSERT INTO notifications (title, message, user_id, is_read)
-            VALUES (:title, :message, :user_id, 0)
-        ");
-
-        foreach ($userIds as $userId) {
-            $stmt->bindParam(':title', $title);
-            $stmt->bindParam(':message', $message);
-            $stmt->bindParam(':user_id', $userId);
-            $stmt->execute();
-        }
-
-        $appSettings->respond([
-            'message' => 'Notification sent successfully',
-            'status' => 200
-        ]);
-    } elseif ($action === 'get-notifications') {
-        // Get the action from the GET variable
-        // GET /api/v1/notification?action=get-notifications
-        $authMiddleware = new AuthMiddleware();
-        // Authenticate first and get user ID
-        $userId = $authMiddleware->authenticate();
-        // we must paginate the results
-        $page = $_GET['page'] ?? 1;
-        $limit = 5;
-        $offset = ($page - 1) * $limit;
-         // Get Total Notification count
-        $totalStmt = $pdo->prepare("SELECT COUNT(*) as total FROM notifications WHERE user_id = :user_id");
-        $totalStmt->bindParam(':user_id', $userId);
-        $totalStmt->execute();
-        $totalResult = $totalStmt->fetch(PDO::FETCH_ASSOC);
-        $total = $totalResult['total'];
     
-
-        $stmt = $pdo->prepare("
-            SELECT *
-            FROM notifications
-            WHERE user_id = :user_id
-            ORDER BY created_at DESC
-            LIMIT :limit OFFSET :offset
-        ");
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
-        $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
-        $stmt->execute();
-        $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $data = [
-            'notifications' => $notifications,
-            'page' => $page,
-            'limit' => $limit,
-            'total' => (int)$total
-        ];
-
-        $appSettings->respond([
-            'data' => $data,
-            'message' => 'Notifications retrieved successfully',
-            'status' => 200
-        ]);
-    } elseif($action === 'get-unread-notifications') {
-       
-        $authMiddleware = new AuthMiddleware();
-        // Authenticate first and get user ID
-        $userId = $authMiddleware->authenticate();
-
-        $stmt = $pdo->prepare("
-            SELECT *
-            FROM notifications
-            WHERE user_id = :user_id AND is_read = 0 ORDER BY created_at DESC LIMIT 10
-        ");
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->execute();
-        $notifications = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $data = [
-            'notifications' => $notifications,
-            'total' => count($notifications)
-        ];
-        $appSettings->respond([
-            'data' => $data,
-            'message' => 'Unread notifications retrieved successfully',
-            'status' => 200
-        ]);
-    }elseif ($action === 'mark-as-read') {
-        // POST /api/v1/notification?action=mark-as-read
-        
-        $authMiddleware = new AuthMiddleware();
-        // Authenticate first and get user ID
-        $userId = $authMiddleware->authenticate();
-
-        $input = json_decode(file_get_contents('php://input'), true);
-
-        $notificationId = $input['notification_id'] ?? '';
-
-        if (empty($notificationId)) {
-            $appSettings->respond([
-                'message' => 'Missing required fields',
-                'status' => 400
-            ]);
-            exit;
+        // Check if input keys are valid column names
+        $invalidKeys = array_diff(array_keys($input), $cols);
+        if (!empty($invalidKeys)) {
+            throw new Exception('Invalid parameters: ' . implode(', ', $invalidKeys), 400);
         }
-
-        $stmt = $pdo->prepare("
-            UPDATE notifications
-            SET is_read = 1
-            WHERE id = :notification_id AND user_id = :user_id
-        ");
-        $stmt->bindParam(':notification_id', $notificationId);
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->execute();
-
-        // Check if record updated if not found then throw error
-        if ($stmt->rowCount() === 0) {
-            $appSettings->respond([
-                'message' => 'Notification not found',
-                'status' => 404
-            ]);
-            exit;
+    
+    
+        // Update the setting
+        $setClause = [];
+        $params = [];
+    
+        foreach ($input as $column => $value) {
+            $setClause[] = "$column = :$column";
+            $params[$column] = $value;
         }
+    
+        // Add user_id to params
+        $params['user_id'] = $userId;
+    
+        // Check if the record for the user exists or not if not then insert
+        $stmt = $pdo->prepare("SELECT * FROM settings WHERE user_id = :user_id");
+        $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $responseData = [];
+        if (!$row) {
+             // Insert the new record
+           $placeholders = implode(', ', array_map(fn($key) => ':' . $key, array_keys($input)));
 
-        $appSettings->respond([
-            'message' => 'Notification marked as read successfully',
-            'status' => 200
-        ]);
-    }  elseif ($action === 'delete-notification') {
-          // POST /api/v1/notification?action=delete-notification
-        $authMiddleware = new AuthMiddleware();
-          $userId = $authMiddleware->authenticate();
-          $input = json_decode(file_get_contents('php://input'), true);
-          $notificationId = $input['notification_id'] ?? '';
-
-          if (empty($notificationId)) {
-            $appSettings->respond([
-                'message' => 'Missing required fields',
-                'status' => 400
-            ]);
-            exit;
-         }
-
-          $stmt = $pdo->prepare("
-             DELETE FROM notifications
-              WHERE id = :notification_id AND user_id = :user_id
-          ");
-          $stmt->bindParam(':notification_id', $notificationId);
-          $stmt->bindParam(':user_id', $userId);
+          $sql = "INSERT INTO settings (user_id, created_at, " . implode(', ', array_keys($input)) . ") VALUES (:user_id, NOW(), " . $placeholders . ")";
+           $stmt = $pdo->prepare($sql);
+          $stmt->execute($params);
+           $insertedId = $pdo->lastInsertId();
+    
+           // Fetch the new record
+          $stmt = $pdo->prepare("SELECT * FROM settings WHERE id = :id");
+          $stmt->bindParam(':id', $insertedId, PDO::PARAM_INT);
           $stmt->execute();
-          if ($stmt->rowCount() === 0) {
+          $responseData = $stmt->fetch(PDO::FETCH_ASSOC);
+    
             $appSettings->respond([
-                'message' => 'Notification not found',
-                'status' => 404
-            ]);
-            exit;
-          }
-
-          $appSettings->respond([
-              'message' => 'Notification deleted successfully',
-              'status' => 200
-         ]);
-    } elseif ($action === 'mark-all-as-read') {
-        // POST /api/v1/notification?action=mark-all-as-read
-        $authMiddleware = new AuthMiddleware();
-        // Authenticate first and get user ID
-        $userId = $authMiddleware->authenticate();
-
-        $stmt = $pdo->prepare("
-            UPDATE notifications
-            SET is_read = 1
-            WHERE user_id = :user_id AND is_read = 0
-        ");
-        $stmt->bindParam(':user_id', $userId);
-        $stmt->execute();
-
-        $appSettings->respond([
-            'message' => 'All notifications marked as read successfully',
-            'status' => 200
-        ]);
-    } else { 
-        $appSettings->respond([
-            'message' => 'Invalid action',
-            'status' => 400
-        ]);
-        exit;
+                'data' => $responseData,
+                'message' => 'Setting/Settings created successfully!',
+              'status' => 201
+          ]);
+        } else {
+          // Update the existing record
+            $sql = "UPDATE settings SET created_at = NOW(), " . implode(', ', $setClause) . " WHERE user_id = :user_id";
+           $stmt = $pdo->prepare($sql);
+           $stmt->execute($params);
+    
+           // Fetch the updated record
+            $stmt = $pdo->prepare("SELECT * FROM settings WHERE user_id = :user_id");
+            $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
+           $stmt->execute();
+            $responseData = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    
+           $appSettings->respond([
+                'data' => $responseData,
+                'message' => 'Setting/Settings updated successfully!',
+                'status' => 200
+           ]);
+        }
+    
+    } else {
+        throw new Exception('Unsupported request method or missing ID.');
     }
-} catch (Exception $e) { 
+} catch (Exception $e) {
+    $status = $e->getCode();
+    // If no status code is set, default to 500
+    if (!$status || $status < 100 || $status > 599) {
+        $status = 500;
+    }
+
     $appSettings->respond([
-        'message' => $e->getMessage(),
-        'status' => 500
+        'error' => $e->getMessage(),
+        'status' => $status
     ]);
-    exit;
+}
+
+function validateJSONInput($input)
+{
+    if ($input === null) {
+        $error = match(json_last_error()) {
+            JSON_ERROR_NONE => 'No errors',
+            JSON_ERROR_DEPTH => 'Maximum stack depth exceeded',
+            JSON_ERROR_STATE_MISMATCH => 'Underflow or the modes mismatch',
+            JSON_ERROR_CTRL_CHAR => 'Unexpected control character found',
+            JSON_ERROR_SYNTAX => 'Syntax error, malformed JSON',
+            JSON_ERROR_UTF8 => 'Malformed UTF-8 characters',
+            default => 'Unknown error'
+        };
+        throw new Exception('Invalid JSON input: ' . $error, 400);
+    }
 }

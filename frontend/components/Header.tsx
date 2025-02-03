@@ -1,8 +1,10 @@
 import React from "react";
 import Link from "next/link";
+import { Toaster } from "sonner";
 
 export default function Header() {
   return (
+    <div>
     <header className="fixed inset-x-0 top-0 z-10 border-b border-gray-950/5 dark:border-white/10 mx-auto px-4 py-6 flex justify-between items-center backdrop-blur-sm">
       <Link
           href="/">
@@ -25,5 +27,7 @@ export default function Header() {
         </Link>
       </nav>
     </header>
+      <Toaster richColors position="top-center" />
+    </div>
   );
 }

@@ -93,6 +93,24 @@ export default function Header() {
     }
   }
 
+   // clear notification 
+  const clearNotifications = async () => {
+    if (isLoading) return
+    setIsLoading(true)
+
+    try {
+      const response = await fetchData("notification/index.php?action=mark-all-as-read", "POST")
+
+      if (response.status === 200) {
+        setNotifications([]) 
+      }
+    } catch (error) {
+      console.error("Error clearing notifications:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString(undefined, {
       year: "numeric",
@@ -163,11 +181,14 @@ export default function Header() {
                 ) : (
                   notifications.map(renderNotificationItem)
                 )}
+                <div className="flex justify-between items-center mt-2">
                 <DropdownMenu.Item className="text-sm text-center text-rose-600 dark:text-rose-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-2 py-1 outline-none cursor-default">
                   <Link href="/notifications" className="block w-full">
                     View all notifications
                   </Link>
                 </DropdownMenu.Item>
+                <DropdownMenu.Item className="text-sm text-center text-rose-600 dark:text-rose-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-2 py-1 outline-none cursor-pointer" onClick={clearNotifications}>Clear all notification</DropdownMenu.Item>
+              </div>
               </DropdownMenu.Content>
             </DropdownMenu.Portal>
           </DropdownMenu.Root>
@@ -193,7 +214,7 @@ export default function Header() {
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
               <DropdownMenu.Content
-                className="min-w-[300px] max-h-[400px] overflow-y-auto bg-white dark:bg-gray-800 rounded-md p-1 shadow-md"
+                className="min-w-[300px] max-h-[400px] overflow-y-auto bg-white dark:bg-zinc-800 rounded-md p-1 shadow-md"
                 onOpenAutoFocus={(e) => e.preventDefault()}
                 sideOffset={5}
                 align="end"
@@ -205,11 +226,14 @@ export default function Header() {
                 ) : (
                   notifications.map(renderNotificationItem)
                 )}
+                <div className="flex justify-between items-center mt-2">
                 <DropdownMenu.Item className="text-sm text-center text-rose-600 dark:text-rose-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-2 py-1 outline-none cursor-default">
                   <Link href="/notifications" className="block w-full">
                     View all notifications
                   </Link>
                 </DropdownMenu.Item>
+                <DropdownMenu.Item className="text-sm text-center text-rose-600 dark:text-rose-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded px-2 py-1 outline-none cursor-pointer" onClick={clearNotifications}>Clear all notification</DropdownMenu.Item>
+              </div>
               </DropdownMenu.Content>
             </DropdownMenu.Portal>
           </DropdownMenu.Root>
