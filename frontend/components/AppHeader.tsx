@@ -21,6 +21,7 @@ interface Notification {
   user_id: number
   title: string
   message: string
+  clickable_url?: string
   is_read: number
   created_at: string
 }
@@ -82,8 +83,14 @@ export default function Header() {
       if (response.status === 200) {
         setNotifications((prev) => prev.filter((n) => n.id !== notification.id))
         toast.success("Notification marked as read")
+        if (notification.clickable_url) {
+          window.open(notification.clickable_url, "_blank")
+        }
       } else {
         toast.error("Failed to mark notification as read")
+        if(notification.clickable_url) {
+          window.open(notification.clickable_url, "_blank")
+        }
       }
     } catch (error) {
       console.error("Error marking notification as read:", error)
@@ -170,7 +177,7 @@ export default function Header() {
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
               <DropdownMenu.Content
-                className="min-w-[300px] max-h-[400px] overflow-y-auto bg-white dark:bg-zinc-800 rounded-md p-1 shadow-md"
+                className="min-w-[300px] max-w-[300px] max-h-[400px] overflow-y-auto bg-white dark:bg-zinc-800 rounded-md p-1 shadow-md"
                 onOpenAutoFocus={(e) => e.preventDefault()}
                 sideOffset={5}
               >
@@ -214,7 +221,7 @@ export default function Header() {
             </DropdownMenu.Trigger>
             <DropdownMenu.Portal>
               <DropdownMenu.Content
-                className="min-w-[300px] max-h-[400px] overflow-y-auto bg-white dark:bg-zinc-800 rounded-md p-1 shadow-md"
+                className="min-w-[300px] max-w-[300px] max-h-[400px] overflow-y-auto bg-white dark:bg-zinc-800 rounded-md p-1 shadow-md"
                 onOpenAutoFocus={(e) => e.preventDefault()}
                 sideOffset={5}
                 align="end"

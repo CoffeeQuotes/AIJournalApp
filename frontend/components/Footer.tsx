@@ -3,7 +3,7 @@ import React from 'react';
 
 export default function Footer() {
   return (
-    <footer className="bg-rose-100 dark:bg-rose-900 text-rose-800 dark:text-rose-200 py-8">
+    <footer className="bg-zinc-100 dark:bg-zinc-900 text-rose-800 dark:text-rose-200 py-8">
     <div className="container mx-auto px-4 text-center">
       <p>© {new Date().getFullYear()} NotesApp. All rights reserved.</p>
       <div className="mt-4">

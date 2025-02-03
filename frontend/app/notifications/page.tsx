@@ -5,7 +5,7 @@ import AppHeader from "@/components/AppHeader"
 import Footer from "@/components/Footer"
 import { motion, AnimatePresence } from "framer-motion"
 import { fetchData } from "@/utils/api"
-import { Bell, CheckCircle, Trash2, Loader2 } from "lucide-react"
+import { Bell, CheckCircle, Trash2, Loader2, ExternalLink } from "lucide-react"
 import { toast } from "sonner"
 import useSocket from "@/hooks/useSocket"
 
@@ -14,6 +14,7 @@ interface Notification {
   user_id: number
   title: string
   message: string
+  clickable_url?: string
   is_read: number
   created_at: string
 }
@@ -219,6 +220,15 @@ export default function Notifications() {
                         </p>
                       </div>
                       <div className="flex items-center ml-4">
+                        {/* If clickable_url is present show a button do open it  */}
+                        {notification.clickable_url && (
+                          <a
+                            href={notification.clickable_url}
+                            target="_blank"
+                            rel="noopener noreferrer">
+                            <ExternalLink className="w-5 h-5 mr-2" />
+                            </a>
+                        )}
                         {!notification.is_read && (
                           <button
                             onClick={() => markAsRead(notification.id)}

@@ -24,6 +24,7 @@ try {
         $input = json_decode(file_get_contents('php://input'), true);
         $title = $input['title'] ?? '';
         $message = $input['message'] ?? '';
+        $clickable_url = $input['clickable_url'] ?? NULL;
         // $userIds = $_POST['user_ids'] ?? [];
         // var_dump($title, $message);
         $stmt = $pdo->prepare("SELECT user_id FROM `settings` WHERE notification = 1");
@@ -53,19 +54,24 @@ try {
             'message' => $message,
             'userIds' => $userIds
         ];
+        // if clickable_url is not null then add it to the data array
+        if ($clickable_url) {
+            $data['clickable_url'] = $clickable_url;
+        }
         $client->emit('general-notification', $data);
 
         $client->disconnect();
 
 
         $stmt = $pdo->prepare("
-            INSERT INTO notifications (title, message, user_id, is_read)
-            VALUES (:title, :message, :user_id, 0)
+            INSERT INTO notifications (title, message, clickable_url, user_id, is_read)
+            VALUES (:title, :message, :clickable_url, :user_id, 0)
         ");
 
         foreach ($userIds as $userId) {
             $stmt->bindParam(':title', $title);
             $stmt->bindParam(':message', $message);
+            $stmt->bindParam(':clickable_url', $clickable_url);
             $stmt->bindParam(':user_id', $userId);
             $stmt->execute();
         }

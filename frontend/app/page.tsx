@@ -9,14 +9,14 @@ import Footer from "@/components/Footer";
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-gradient-to-r from-rose-50 to-white dark:from-rose-950 dark:to-black">
+    <main className="flex flex-col">
       {/* Hero Section */}
-      <div className="bg-[url(/xv.png)]">
+      <div className="min-h-screen flex items-center justify-center bg-[url('/flowerbg.jpg')] bg-no-repeat bg-cover bg-center">
       {/* Header */}
       <Header />
-      <section className="container mx-auto px-4 py-12 md:py-24 flex flex-col md:flex-row items-center">
+      <section className="mx-auto p-6 md:p-12 flex flex-col md:flex-row items-center backdrop-blur-sm shadow-md rounded-full border-b border-gray-950/5">
         <motion.div
-          className="md:w-1/2 text-center md:text-left"
+          className="text-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -43,23 +43,23 @@ export default function HomePage() {
           </div>
         </motion.div>
         <motion.div
-          className="md:w-1/2 mt-12 md:mt-0"
+          className="mt-12 md:mt-0"
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
         >
-          <Image
+          {/* <Image
             src="/herobg.jpg"
             alt="Person writing in a journal"
             width={600}
             height={400}
             className="rounded-lg shadow-lg"
-          />
+          /> */}
         </motion.div>
       </section>
       </div>
       {/* Features Section */}
-      <section className="bg-gradient-to-r from-rose-500 to-rose-900 py-16">
+      <section className="bg-white dark:bg-zinc-900 py-16 bg-[url(/xv.png)]">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center text-rose-800 dark:text-rose-200 mb-12">
             Key Features
