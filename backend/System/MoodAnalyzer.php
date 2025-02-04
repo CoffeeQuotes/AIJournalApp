@@ -25,10 +25,12 @@ class MoodAnalyzer {
 
         if ($httpCode === 200) {
             $result = json_decode($response, true);
-            if (isset($result['sentiment']) && isset($result['score'])) {
+            // var_dump($result);
+            if (isset($result['sentiment']) && isset($result['score']) && isset($result['categories'])) {
                 return [
                     'sentiment' => $result['sentiment'],
                     'score' => $result['score'],
+                    'categories' => $result['categories']
                 ];
             } else {
                 throw new \Exception("Unexpected response format from sentiment analysis service.");

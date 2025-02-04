@@ -99,6 +99,7 @@ try {
         $analysisResult = $moodAnalyzer->analyzeSentiment($input['entry_text']);
         $mood = $analysisResult['sentiment'];
         $sentimentScore = $analysisResult['score'];
+        $classifiers = $analysisResult['categories'];
     
         $stmt = $pdo->prepare("
             INSERT INTO journal_entries (user_id, entry_text, sentiment_score, mood, created_at)
@@ -110,6 +111,7 @@ try {
         $stmt->bindParam(':sentiment_score', $sentimentScore, PDO::PARAM_STR);
         $stmt->bindParam(':mood', $mood, PDO::PARAM_STR);
         $stmt->execute();
+        $journalId = $pdo->lastInsertId();
     
         // Update mood metrics 
         $stmt = $pdo->prepare("
@@ -120,14 +122,28 @@ try {
         $stmt->bindParam(':user_id', $userId);
         $stmt->bindParam(':mood', $mood);
         $stmt->execute();
-    
+        
+        // Update journal_classifiers
+        foreach($classifiers as $classifier) { 
+            $stmt = $pdo->prepare("
+                INSERT INTO journal_classifiers (journal_entries_id, user_id, classifier, score, created_at)
+                VALUES (:journal_entry_id, :user_id, :classifier, :score, NOW())
+            ");
+            $stmt->bindParam(':journal_entry_id', $journalId);
+            $stmt->bindParam(':user_id', $userId);
+            $stmt->bindParam(':classifier', $classifier['category']);
+            $stmt->bindParam(':score', $classifier['score']);
+            $stmt->execute();
+        }
+
         $appSettings->respond([
             'data' => [
-                'id' => $pdo->lastInsertId(),
+                'id' => $journalId,
                 'user_id' => $userId,
                 'entry_text' => $input['entry_text'],
                 'sentiment_score' => $sentimentScore,
                 'mood' => $mood,
+                'classifiers' => $classifiers,
                 'created_at' => date('Y-m-d H:i:s')
             ],
             'message' => 'Journal entry added successfully!',

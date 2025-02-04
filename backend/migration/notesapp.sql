@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jan 27, 2025 at 03:32 PM
+-- Generation Time: Feb 05, 2025 at 01:14 AM
 -- Server version: 10.11.6-MariaDB-0+deb12u1
 -- PHP Version: 8.2.26
 
@@ -51,7 +51,45 @@ INSERT INTO `blacklisted_tokens` (`id`, `token`, `blacklisted_at`) VALUES
 (11, '2a46fd9c2346b9e1fa3c7a30bcf8a903c3099d74810d6db0d3010ea3390474bf', '2025-01-26 18:48:58'),
 (12, '0e732207c09b4454fd95d08c268369160d24e76e5b74cdb567c7a4c9cee7af00', '2025-01-26 19:11:18'),
 (13, 'd30509e454968748b55140276af221dde8f05c6b9ad83c36be1e5c3259411e8e', '2025-01-26 19:14:33'),
-(14, 'd2f32232ac0d20eaabeca5458f7fd2070b879a088a81279dcbd7590c520677a8', '2025-01-26 19:42:55');
+(14, 'd2f32232ac0d20eaabeca5458f7fd2070b879a088a81279dcbd7590c520677a8', '2025-01-26 19:42:55'),
+(15, '6e3bc93225b3f15d4a121499b239ad63e269d0f72ed6e3380b75dced0c614488', '2025-01-27 20:58:25'),
+(16, 'eaaf2a395f3d9305d876a126cd21c785072e4ba7ae49e1fac40e792c9fd63d88', '2025-01-27 20:59:32'),
+(17, '4e12c6267ab111484de6318013f2569e7ceb7f5c638dba1f0be281b3bd271a09', '2025-01-27 21:56:39'),
+(18, '686c3b8cc917881586d0f1d73bfbb657a3e5d16851c18f787d615deb2fa23644', '2025-01-28 20:16:26'),
+(19, 'b90f8a131c749d451c69fe35f5d182726d1d948294d70fab557c74f47871daab', '2025-01-28 21:02:00'),
+(20, 'de177b4c8d9346bd913133730923115894903452f7578c974bd7360252f046e6', '2025-01-29 22:29:44'),
+(21, 'e12c99d8e53428110755501c650a637037f940e8a4b476a8aa1a3277403a3e7f', '2025-02-01 17:56:35'),
+(22, '745e49e38594b477c4e73bad51870623d1999da155f656894ac027d556a964cf', '2025-02-03 04:51:38'),
+(23, 'af63e7153c0977cf75970200a503039e955f01442f4171c0ba6a1a767d049291', '2025-02-03 05:55:35'),
+(24, 'bc37b850351f724e2e7566c872916a8e2fd435807d71a5975bb91b5ce6fcd7d4', '2025-02-03 06:53:02'),
+(25, '706d402a1e7d735aa3d90e7a1e6c65f11380b0ab34bc0c9a008a498db27d2bf1', '2025-02-03 20:29:54');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `journal_classifiers`
+--
+
+CREATE TABLE `journal_classifiers` (
+  `id` int(11) NOT NULL,
+  `journal_entries_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `classifier` varchar(250) NOT NULL,
+  `score` decimal(5,4) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `journal_classifiers`
+--
+
+INSERT INTO `journal_classifiers` (`id`, `journal_entries_id`, `user_id`, `classifier`, `score`, `created_at`) VALUES
+(1, 32, 8, 'Goal Setting', 0.9828, '2025-02-04 19:35:45'),
+(2, 32, 8, 'Personal Reflection', 0.6735, '2025-02-04 19:35:45'),
+(3, 32, 8, 'Learning and Growth', 0.6229, '2025-02-04 19:35:45'),
+(4, 33, 8, 'Personal Reflection', 0.9418, '2025-02-04 19:41:05'),
+(5, 33, 8, 'Learning and Growth', 0.8206, '2025-02-04 19:41:05'),
+(6, 33, 8, 'Goal Setting', 0.7282, '2025-02-04 19:41:05');
 
 -- --------------------------------------------------------
 
@@ -84,7 +122,15 @@ INSERT INTO `journal_entries` (`id`, `user_id`, `entry_text`, `sentiment_score`,
 (22, 8, 'I can\'t believe it - I got the promotion! All that hard work finally paid off. Called Mom and Dad right away, and they were over the moon. Treated myself to a fancy dinner and a glass of champagne. I feel like I\'m walking on air. Can\'t wait to see what this new role brings. Note to self: celebrate the wins, big and small.', 0.9996, 'POSITIVE', '2025-01-27 07:34:55'),
 (23, 8, 'Spent the whole day at the beach with friends. The sun, the waves, the laughter - it was exactly what I needed. We played volleyball (I\'m still terrible, but who cares?), had a picnic, and stayed to watch the sunset. Feeling refreshed and grateful for these moments of pure joy. Mental note: make more time for days like this.', 0.9998, 'POSITIVE', '2025-01-27 07:35:23'),
 (24, 8, 'Feeling a bit lost today. Can\'t shake this sense of uncertainty about my future. Am I on the right path? Should I be doing more? Tried to distract myself with a new book, but couldn\'t focus. Ended up calling my sister, and she always knows how to put things in perspective. Still not sure about everything, but feeling a bit more grounded. Tomorrow, I\'ll make a list of goals. Baby steps.', 0.9780, 'POSITIVE', '2025-01-27 07:35:54'),
-(25, 8, 'First day of the new month, and I\'m determined to make it a good one. Started with a morning run - it was tough to get out of bed, but I felt amazing afterward. Made a healthy breakfast and actually sat down to enjoy it instead of rushing. Work was busy but productive. In the evening, I finally started that painting I\'ve been putting off. It\'s not perfect, but it feels good to create something. Here\'s to a month of small, positive changes.', 0.9996, 'POSITIVE', '2025-01-27 07:36:20');
+(25, 8, 'First day of the new month, and I\'m determined to make it a good one. Started with a morning run - it was tough to get out of bed, but I felt amazing afterward. Made a healthy breakfast and actually sat down to enjoy it instead of rushing. Work was busy but productive. In the evening, I finally started that painting I\'ve been putting off. It\'s not perfect, but it feels good to create something. Here\'s to a month of small, positive changes.', 0.9996, 'POSITIVE', '2025-01-27 07:36:20'),
+(26, 8, 'Today was a bad day. Today I felt very very awful. ', 0.9997, 'NEGATIVE', '2025-01-30 19:30:43'),
+(27, 14, 'Today started good, I wake and then sleep again. I saw a weird dream too. It was certainly negative dream. But these dreams do not affect me at all. I know, there are people who experience nightmares, I feel so bad about them. What those people feel who experience sleep paralysis. ', 0.9914, 'NEGATIVE', '2025-02-03 06:33:22'),
+(28, 14, 'Life is just going on. I don\'t have any control over it.  I am just living it as it is. I am tired of it. I am waiting for it to finish fast.', 0.9993, 'NEGATIVE', '2025-02-03 06:43:01'),
+(29, 14, 'Will in future I will ever have  a satisfied life. Will my situation ever improve? I have totally miserable life. I am too tired of it. ', 0.9996, 'NEGATIVE', '2025-02-03 06:52:25'),
+(30, 8, 'Today was such a awesome day. I love the fact I met my old friends. We enjoyed moutain treking. ', 0.9999, 'POSITIVE', '2025-02-03 06:54:56'),
+(31, 8, 'Today was tough. I\'m struggling with anxiety and feeling overwhelmed at work.', 0.5887, 'POSITIVE', '2025-02-04 19:15:25'),
+(32, 8, 'I\'m excited about my new project and set some ambitious goals for the next quarter.', 0.9998, 'POSITIVE', '2025-02-04 19:35:45'),
+(33, 8, 'Met with my best friend today. We had a deep conversation about life and our dreams.', 0.9998, 'POSITIVE', '2025-02-04 19:41:05');
 
 -- --------------------------------------------------------
 
@@ -118,7 +164,84 @@ INSERT INTO `mood_metrics` (`id`, `user_id`, `mood`, `count`, `recorded_date`) V
 (15, 8, 'POSITIVE', 1, '2025-01-26'),
 (16, 8, 'POSITIVE', 1, '2025-01-24'),
 (17, 8, 'POSITIVE', 1, '2025-01-27'),
-(18, 8, 'POSITIVE', 1, '2025-01-27');
+(18, 8, 'POSITIVE', 1, '2025-01-27'),
+(19, 8, 'NEGATIVE', 1, '2025-01-31'),
+(20, 14, 'NEGATIVE', 1, '2025-02-03'),
+(21, 14, 'NEGATIVE', 1, '2025-02-03'),
+(22, 14, 'NEGATIVE', 1, '2025-02-03'),
+(23, 8, 'POSITIVE', 1, '2025-02-03'),
+(24, 8, 'POSITIVE', 1, '2025-02-05'),
+(25, 8, 'POSITIVE', 1, '2025-02-05'),
+(26, 8, 'POSITIVE', 1, '2025-02-05');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `notifications`
+--
+
+CREATE TABLE `notifications` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `message` text DEFAULT NULL,
+  `clickable_url` varchar(250) DEFAULT NULL,
+  `is_read` tinyint(4) NOT NULL DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `notifications`
+--
+
+INSERT INTO `notifications` (`id`, `user_id`, `title`, `message`, `clickable_url`, `is_read`, `created_at`) VALUES
+(16, 3, 'Test Notification 2', 'Love you all!!', NULL, 0, '2025-01-31 20:02:35'),
+(17, 8, 'Test Notification 2', 'Love you all!!', NULL, 1, '2025-01-31 20:02:36'),
+(18, 13, 'Test Notification 2', 'Love you all!!', NULL, 0, '2025-01-31 20:02:36'),
+(19, 3, 'Test Notification 2', 'Love you all!!', NULL, 0, '2025-01-31 20:51:00'),
+(20, 8, 'Test Notification 2', 'Love you all!!', NULL, 1, '2025-01-31 20:51:00'),
+(21, 13, 'Test Notification 2', 'Love you all!!', NULL, 0, '2025-01-31 20:51:00'),
+(22, 3, 'Test Notification 2', 'Who knows what is true or what not, so don\'t worry!', NULL, 0, '2025-01-31 21:20:11'),
+(23, 8, 'Test Notification 2', 'Who knows what is true or what not, so don\'t worry!', NULL, 1, '2025-01-31 21:20:11'),
+(24, 13, 'Test Notification 2', 'Who knows what is true or what not, so don\'t worry!', NULL, 0, '2025-01-31 21:20:11'),
+(25, 3, 'Welcome Alert', 'Welcome to our platform! We hope you have a great experience.', NULL, 0, '2025-02-01 20:40:18'),
+(26, 8, 'Welcome Alert', 'Welcome to our platform! We hope you have a great experience.', NULL, 1, '2025-02-01 20:40:18'),
+(27, 13, 'Welcome Alert', 'Welcome to our platform! We hope you have a great experience.', NULL, 0, '2025-02-01 20:40:18'),
+(28, 3, 'System Maintenance', 'Scheduled maintenance on Sunday at 2 AM. Expect downtime of 30 minutes.', NULL, 0, '2025-02-01 20:41:30'),
+(29, 8, 'System Maintenance', 'Scheduled maintenance on Sunday at 2 AM. Expect downtime of 30 minutes.', NULL, 1, '2025-02-01 20:41:30'),
+(30, 13, 'System Maintenance', 'Scheduled maintenance on Sunday at 2 AM. Expect downtime of 30 minutes.', NULL, 0, '2025-02-01 20:41:30'),
+(31, 3, 'Security Reminder', 'Never share your password with anyone. Stay safe!', NULL, 0, '2025-02-01 20:41:54'),
+(32, 8, 'Security Reminder', 'Never share your password with anyone. Stay safe!', NULL, 1, '2025-02-01 20:41:54'),
+(33, 13, 'Security Reminder', 'Never share your password with anyone. Stay safe!', NULL, 0, '2025-02-01 20:41:54'),
+(34, 3, 'Feature Update', 'We\'ve added a new dark mode feature. Check it out in settings!', NULL, 0, '2025-02-01 20:42:31'),
+(35, 8, 'Feature Update', 'We\'ve added a new dark mode feature. Check it out in settings!', NULL, 1, '2025-02-01 20:42:31'),
+(36, 13, 'Feature Update', 'We\'ve added a new dark mode feature. Check it out in settings!', NULL, 0, '2025-02-01 20:42:31'),
+(37, 3, 'Daily Motivation', 'Every challenge is an opportunity in disguise. Keep going!', NULL, 0, '2025-02-01 20:42:59'),
+(38, 8, 'Daily Motivation', 'Every challenge is an opportunity in disguise. Keep going!', NULL, 1, '2025-02-01 20:42:59'),
+(39, 13, 'Daily Motivation', 'Every challenge is an opportunity in disguise. Keep going!', NULL, 0, '2025-02-01 20:42:59'),
+(40, 3, 'Discount Offer', 'Limited-time offer: Get 20% off on premium plans. Hurry up!', NULL, 0, '2025-02-01 20:43:30'),
+(41, 8, 'Discount Offer', 'Limited-time offer: Get 20% off on premium plans. Hurry up!', NULL, 1, '2025-02-01 20:43:31'),
+(42, 13, 'Discount Offer', 'Limited-time offer: Get 20% off on premium plans. Hurry up!', NULL, 0, '2025-02-01 20:43:31'),
+(43, 3, 'System Alert', 'Unusual login detected. If this wasn\'t you, change your password immediately.', NULL, 0, '2025-02-01 20:43:52'),
+(44, 8, 'System Alert', 'Unusual login detected. If this wasn\'t you, change your password immediately.', NULL, 1, '2025-02-01 20:43:53'),
+(45, 13, 'System Alert', 'Unusual login detected. If this wasn\'t you, change your password immediately.', NULL, 0, '2025-02-01 20:43:53'),
+(46, 3, 'Reminder', 'Don\'t forget to complete your profile for a personalized experience.', NULL, 0, '2025-02-01 20:44:30'),
+(48, 13, 'Reminder', 'Don\'t forget to complete your profile for a personalized experience.', NULL, 0, '2025-02-01 20:44:30'),
+(49, 3, 'Poem', 'Do not go gentle into the goodnight', NULL, 0, '2025-02-01 21:52:42'),
+(50, 8, 'Poem', 'Do not go gentle into the goodnight', NULL, 1, '2025-02-01 21:52:42'),
+(51, 13, 'Poem', 'Do not go gentle into the goodnight', NULL, 0, '2025-02-01 21:52:42'),
+(52, 3, 'Chocolate: Your Natural Love Booster', 'Studies show that consuming chocolate releases compounds associated with feelings of love and well-being. Why not harness that power and enjoy a delicious piece today?', NULL, 0, '2025-02-03 07:02:26'),
+(53, 8, 'Chocolate: Your Natural Love Booster', 'Studies show that consuming chocolate releases compounds associated with feelings of love and well-being. Why not harness that power and enjoy a delicious piece today?', NULL, 1, '2025-02-03 07:02:26'),
+(54, 13, 'Chocolate: Your Natural Love Booster', 'Studies show that consuming chocolate releases compounds associated with feelings of love and well-being. Why not harness that power and enjoy a delicious piece today?', NULL, 0, '2025-02-03 07:02:26'),
+(55, 14, 'Chocolate: Your Natural Love Booster', 'Studies show that consuming chocolate releases compounds associated with feelings of love and well-being. Why not harness that power and enjoy a delicious piece today?', NULL, 0, '2025-02-03 07:02:26'),
+(56, 3, 'What\'s in your mind?', 'Write! Because writing helps you thinking clearly, reduces stress and make you happy!', 'http://localhost:3000/journal/create', 0, '2025-02-03 19:18:47'),
+(57, 8, 'What\'s in your mind?', 'Write! Because writing helps you thinking clearly, reduces stress and make you happy!', 'http://localhost:3000/journal/create', 1, '2025-02-03 19:18:47'),
+(58, 13, 'What\'s in your mind?', 'Write! Because writing helps you thinking clearly, reduces stress and make you happy!', 'http://localhost:3000/journal/create', 0, '2025-02-03 19:18:47'),
+(59, 14, 'What\'s in your mind?', 'Write! Because writing helps you thinking clearly, reduces stress and make you happy!', 'http://localhost:3000/journal/create', 0, '2025-02-03 19:18:47'),
+(60, 3, 'Why don\'t you write?', 'Who made you smile today? What you like about today?', 'http://localhost:3000/journal/create', 0, '2025-02-03 19:55:57'),
+(61, 8, 'Why don\'t you write?', 'Who made you smile today? What you like about today?', 'http://localhost:3000/journal/create', 1, '2025-02-03 19:55:57'),
+(62, 13, 'Why don\'t you write?', 'Who made you smile today? What you like about today?', 'http://localhost:3000/journal/create', 0, '2025-02-03 19:55:57'),
+(63, 14, 'Why don\'t you write?', 'Who made you smile today? What you like about today?', 'http://localhost:3000/journal/create', 0, '2025-02-03 19:55:57');
 
 -- --------------------------------------------------------
 
@@ -209,7 +332,9 @@ CREATE TABLE `settings` (
 
 INSERT INTO `settings` (`id`, `user_id`, `theme`, `notification`, `language`, `created_at`) VALUES
 (1, 3, 'light', 1, 'en', '2025-01-27 09:47:07'),
-(2, 8, 'light', 0, 'en', '2025-01-27 10:00:03');
+(2, 8, 'dark', 1, 'en', '2025-01-28 20:55:04'),
+(3, 13, 'system', 1, 'en', '2025-01-31 19:18:57'),
+(4, 14, 'dark', 1, 'en', '2025-02-03 06:17:21');
 
 -- --------------------------------------------------------
 
@@ -232,7 +357,32 @@ INSERT INTO `tokens` (`id`, `user_id`, `token`, `expires_at`) VALUES
 (39, 8, 'bfecee80b7211a4e29f74f290502590577ba3b162ed1f59a73c0e361f086490b', '2025-01-27 07:15:17'),
 (40, 8, 'f5f879cfb7cfb8221fdeda66a95a11911defa54a187d9ad86165f6ed53799230', '2025-01-27 08:17:36'),
 (41, 8, 'ab6c11d8f04cc4cea73a407e9ba604dd8ddfb1fa1bd5001cd3e16f760d433ca0', '2025-01-27 09:23:42'),
-(42, 8, '7e4c0124e5157d3d1410e189ae48145d346ed75f65517c8d36868343c24a0bf4', '2025-01-27 10:41:05');
+(42, 8, '7e4c0124e5157d3d1410e189ae48145d346ed75f65517c8d36868343c24a0bf4', '2025-01-27 10:41:05'),
+(49, 8, '6e3bc93225b3f15d4a121499b239ad63e269d0f72ed6e3380b75dced0c614488', '2025-01-27 21:50:44'),
+(50, 8, 'eaaf2a395f3d9305d876a126cd21c785072e4ba7ae49e1fac40e792c9fd63d88', '2025-01-27 21:58:38'),
+(51, 8, '4e12c6267ab111484de6318013f2569e7ceb7f5c638dba1f0be281b3bd271a09', '2025-01-27 22:53:41'),
+(52, 8, '686c3b8cc917881586d0f1d73bfbb657a3e5d16851c18f787d615deb2fa23644', '2025-01-28 20:36:34'),
+(53, 8, 'b90f8a131c749d451c69fe35f5d182726d1d948294d70fab557c74f47871daab', '2025-01-28 21:16:38'),
+(55, 8, '65ebbdcc6d86f41623c7b0141fd7db9755f9eb8c4650594777bf901cfd4e33f3', '2025-01-28 22:04:29'),
+(56, 8, '21cad48f564fb15a68bda075134b417dff67b460f36d950230822b3987dc1e54', '2025-01-29 21:00:09'),
+(57, 8, '21a9a284dbc29618c88094a4f725895b71b9cfc60143631a40bd1786189e83b4', '2025-01-29 22:01:44'),
+(58, 8, 'de177b4c8d9346bd913133730923115894903452f7578c974bd7360252f046e6', '2025-01-29 23:26:42'),
+(59, 8, 'be48ecb2f4c87a5f314a565b9856677fd0777a809a2a0f0de81d7a881a744f67', '2025-01-29 23:29:57'),
+(60, 8, '745dee8d2a4ea1900d86dfffbada858aafb0a994557eb802b0ea52eda669b9ec', '2025-01-30 19:42:38'),
+(61, 8, '0a561fdf04e1258ffa025bc5bd17d1a1050318ec2f668e576874ada5296ac86e', '2025-01-31 21:49:46'),
+(62, 8, 'e12c99d8e53428110755501c650a637037f940e8a4b476a8aa1a3277403a3e7f', '2025-02-01 18:32:08'),
+(63, 8, 'd22db10bb828bba93ad8caad9aaeff93cdfdd5474eb7d9de97fc7a157250d307', '2025-02-01 18:56:58'),
+(64, 8, '83df54d6cbc81010a319cac5859e4f33ed02fae776c6e510c449fd9e3b0e00a9', '2025-02-01 20:07:07'),
+(65, 8, 'd1d5b31d7b525b4c4979c9c428744fee8f4ecfb83029bb05b35954ba998d5ac5', '2025-02-01 21:10:03'),
+(66, 8, '3875b1ae46b0cc7bbb6d8f058e14fb9f9913ec72816b3e48b6562706342c734d', '2025-02-01 22:13:32'),
+(67, 8, '745e49e38594b477c4e73bad51870623d1999da155f656894ac027d556a964cf', '2025-02-03 05:47:06'),
+(68, 8, 'af63e7153c0977cf75970200a503039e955f01442f4171c0ba6a1a767d049291', '2025-02-03 05:59:00'),
+(69, 14, 'bc37b850351f724e2e7566c872916a8e2fd435807d71a5975bb91b5ce6fcd7d4', '2025-02-03 07:00:12'),
+(70, 8, '8ab4d00eee4c130fc0b90c0034a17c10f9a772e34923710450617088e5465c68', '2025-02-03 07:53:14'),
+(71, 8, '42ec91866628c8e1d4449cd33ca5341298218dcc891f85510df90d7be22a3fc6', '2025-02-03 19:43:43'),
+(72, 8, '706d402a1e7d735aa3d90e7a1e6c65f11380b0ab34bc0c9a008a498db27d2bf1', '2025-02-03 20:53:11'),
+(73, 8, 'b76b7216368dea872059927a355c1efb20d4186aa73d3bcd817b88b1b00466e3', '2025-02-04 06:21:50'),
+(74, 8, '1f25e567f8154e7eec96bf6675e00c49949eda380e05bc7d6751b03bb039719c', '2025-02-04 19:48:35');
 
 -- --------------------------------------------------------
 
@@ -254,14 +404,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `email`, `password`, `created_at`, `updated_at`) VALUES
-(1, 'shishir', 'shishir@adoteapp.com', 'password', '2025-01-19 17:03:37', '2025-01-19 17:03:37'),
-(2, 'testuser', 'test@example.com', '$2y$10$hJF5baN5jZFkoX5nBtfd8.Y8D01L1ZMAhgFfoyPoeMpjrY3iVA1ky', '2025-01-20 06:44:45', '2025-01-20 06:44:45'),
 (3, 'testuser2', 'test2@example.com', '$2y$10$G59DE4125i.rXe0C7eB7WecVmVmRhYD3wlrXU75sdA.lK4rPZ2l7y', '2025-01-20 07:09:42', '2025-01-24 18:33:58'),
-(4, 'testuser3', 'test3@example.com', '$2y$10$FliqDpNw00gzJ8dkqRP1lu7y3ZqeJO4td20aGhp5/WW/uI/VEomXG', '2025-01-23 06:56:39', '2025-01-23 06:56:39'),
-(5, 'testuser4', 'testuser4@example.com', '$2y$10$e3IyRq3nJCPjRclotr4VPOAJEkLyf4orn2a/l4xrtaENinI1.DZR2', '2025-01-23 07:16:40', '2025-01-23 07:16:40'),
-(6, 'testuser5', 'test5@example.com', '$2y$10$46IoannE7DtZowuPetKCWO97USI1PCLyQLbhgiGw.gHu2W7zXKGZC', '2025-01-23 09:14:19', '2025-01-23 09:14:19'),
-(7, 'testuser6', 'test6@gmail.com', '$2y$10$EwjjvkSZQh8.K79.hfyMJ.KwDM6Gz2L84eGCDuWGjmzfisOOPohRm', '2025-01-23 09:31:23', '2025-01-23 09:31:23'),
-(8, 'ashwani', 'ashwani@test.com', '$2y$10$CHs32Zeh0f9fEwHwb2VlgOprgPeLCn74relPZ6.Apm0j5JFJapf3a', '2025-01-23 09:53:47', '2025-01-26 19:10:13');
+(8, 'ashwani', 'ashwani@test.com', '$2y$10$M8ewLm758jRunwoCQH87yeAEj6/xk1SoCaKbsB7QlyHaHAawrzJEm', '2025-01-23 09:53:47', '2025-01-28 21:04:01'),
+(13, 'setting_update_with_register', 'settingupdateregister@gmail.com', '$2y$10$pxZoLK38qvHIDhQ37a/5ku2AbQnyHC5NdIpvtv1uzd.3tIlMkuM8u', '2025-01-31 19:18:57', '2025-01-31 19:18:57'),
+(14, 'testuser10', 'testuser10@example.com', '$2y$10$tO.m8BzHqPYjIDhL.QdmDOvhEy42ZAiLynG9A.bmPLHBqehaTYmpC', '2025-02-03 05:59:40', '2025-02-03 05:59:40');
 
 --
 -- Indexes for dumped tables
@@ -275,6 +421,14 @@ ALTER TABLE `blacklisted_tokens`
   ADD UNIQUE KEY `token` (`token`);
 
 --
+-- Indexes for table `journal_classifiers`
+--
+ALTER TABLE `journal_classifiers`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `journal_entries_id` (`journal_entries_id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
 -- Indexes for table `journal_entries`
 --
 ALTER TABLE `journal_entries`
@@ -285,6 +439,13 @@ ALTER TABLE `journal_entries`
 -- Indexes for table `mood_metrics`
 --
 ALTER TABLE `mood_metrics`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `notifications`
+--
+ALTER TABLE `notifications`
   ADD PRIMARY KEY (`id`),
   ADD KEY `user_id` (`user_id`);
 
@@ -334,25 +495,37 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `blacklisted_tokens`
 --
 ALTER TABLE `blacklisted_tokens`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+
+--
+-- AUTO_INCREMENT for table `journal_classifiers`
+--
+ALTER TABLE `journal_classifiers`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `journal_entries`
 --
 ALTER TABLE `journal_entries`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `mood_metrics`
 --
 ALTER TABLE `mood_metrics`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+
+--
+-- AUTO_INCREMENT for table `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
 
 --
 -- AUTO_INCREMENT for table `password_resets`
 --
 ALTER TABLE `password_resets`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `prompts`
@@ -364,23 +537,30 @@ ALTER TABLE `prompts`
 -- AUTO_INCREMENT for table `settings`
 --
 ALTER TABLE `settings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `tokens`
 --
 ALTER TABLE `tokens`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
 
 --
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `journal_classifiers`
+--
+ALTER TABLE `journal_classifiers`
+  ADD CONSTRAINT `journal_classifiers_ibfk_1` FOREIGN KEY (`journal_entries_id`) REFERENCES `journal_entries` (`id`),
+  ADD CONSTRAINT `journal_classifiers_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
 -- Constraints for table `journal_entries`
@@ -393,6 +573,12 @@ ALTER TABLE `journal_entries`
 --
 ALTER TABLE `mood_metrics`
   ADD CONSTRAINT `mood_metrics_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Constraints for table `notifications`
+--
+ALTER TABLE `notifications`
+  ADD CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 --
 -- Constraints for table `password_resets`
