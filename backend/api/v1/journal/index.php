@@ -65,7 +65,7 @@ try {
             $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
             $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
             $stmt->execute();
-            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $journalEntries = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             // Get total count
             $countStmt = $pdo->prepare("SELECT COUNT(*) as total FROM journal_entries WHERE user_id = :user_id");
@@ -73,9 +73,35 @@ try {
             $countStmt->execute();
             $totalCount = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
 
+            // Initialize an array to hold journal entries with classifiers
+            $journalEntriesWithClassifiers = [];
+
+            // Loop through each journal entry
+            foreach ($journalEntries as $entry) {
+                // Prepare SQL query to fetch classifiers for the current journal entry
+                $stmt = $pdo->prepare("
+                    SELECT * FROM journal_classifiers
+                    WHERE journal_entries_id = :journal_entries_id
+                ");
+                
+                // Bind parameters
+                $stmt->bindParam(':journal_entries_id', $entry['id'], PDO::PARAM_INT);
+                
+                // Execute query
+                $stmt->execute();
+                $classifiers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                // Add the classifiers to the journal entry
+                $entry['classifiers'] = $classifiers;
+
+                // Add the journal entry with classifiers to the result array
+                $journalEntriesWithClassifiers[] = $entry;
+            }
+
+
             // Respond with paginated results
             $appSettings->respond([
-                'data' => $rows,
+                'data' => $journalEntriesWithClassifiers,
                 'pagination' => [
                     'current_page' => $page,
                     'per_page' => $limit,

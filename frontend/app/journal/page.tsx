@@ -12,6 +12,9 @@ import { fetchData } from "@/utils/api";
 import Button from "@/components/ui/button";
 import useSocket from "@/hooks/useSocket";
 
+interface Classfier {
+  classifier: string;
+}
 interface Entry {
   id: number;
   date: string;
@@ -19,6 +22,7 @@ interface Entry {
   preview: string;
   sentiment_score: number;
   mood: string;
+  classifiers: Classfier[];
 }
 const getMoodEmoji = (mood: string) => {
   switch (mood.toLowerCase()) {
@@ -67,8 +71,10 @@ export default function Journal() {
             preview: generateExcerpt(entry.entry_text),
             sentiment_score: Math.round(entry.sentiment_score), // Convert to percentage
             mood: entry.mood,
+            classifiers: entry.classifiers.map((classifier: any) => ({
+              classifier: classifier.classifier,
+            })),
           }));
-
           setEntries(formattedEntries);
           setTotalPages(response.pagination.total_pages);
         } else {
@@ -159,22 +165,6 @@ export default function Journal() {
               </p>
             </div>
           )}
-
-          {/* Pagination Controls */}
-          {/* <div className="flex justify-between items-center mt-8"> */}
-            {/* This shouldn't be shown if it is first page */}
-
-            {/* <Button disabled={page === 1} onClick={() => setPage(page - 1)}>
-              Previous
-            </Button> */}
-            {/* <span className="text-gray-700 dark:text-gray-300">
-              Page {page} of {totalPages}
-            </span> */}
-            {/* This shouldn't be shown if it last page  */}
-            {/* <Button disabled={page >= totalPages} onClick={() => setPage(page + 1)}>
-              Next
-            </Button> */}
-          {/* </div> */}
           <div className="flex justify-between items-center mt-8">
           {page > 1 && (
             <Button onClick={() => setPage(page - 1)}>
@@ -215,32 +205,22 @@ function EntryCard({ entry }: { entry: Entry }) {
       </div>
       <p className="text-gray-600 dark:text-gray-300 mb-4 flex-grow">{entry.preview}</p>
       <div className="space-y-3">
-        {/* Bidirectional Sentiment Bar */}
-        {/* <div className="space-y-1">
-          <div className="flex justify-between items-center text-sm">
-            <span className="text-red-500 dark:text-red-400">Negative</span>
-            <span className="text-green-500 dark:text-green-400">Positive</span>
+        <hr className="border-t border-gray-200 dark:border-gray-700" />
+      {entry.classifiers.length > 0 && (
+          <div className="flex flex-col gap-2">
+            {/* <span className="text-gray-600 dark:text-gray-400">Classifiers:</span> */}
+            <ul className="flex flex-wrap gap-2">
+              {entry.classifiers.map((classifier) => (
+                <li
+                  key={classifier.classifier}
+                  className="px-3 py-1 bg-rose-100 dark:bg-rose-900 text-rose-800 dark:text-rose-200 rounded-full text-sm font-medium"
+                >
+                  {classifier.classifier}
+                </li>
+              ))}
+            </ul>
           </div>
-          <div className="relative w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden"> */}
-            {/* Center line */}
-            {/* <div className="absolute left-1/2 top-0 bottom-0 w-0.5 bg-gray-400 dark:bg-gray-500" /> */}
-            {/* Sentiment bar */}
-            {/* {isPositive ? (
-              <div 
-                className="absolute left-1/2 top-0 bottom-0 bg-green-500 transition-all duration-300"
-                style={{ width: `${intensity / 2}%` }}
-              />
-            ) : (
-              <div 
-                className="absolute right-1/2 top-0 bottom-0 bg-red-500 transition-all duration-300"
-                style={{ width: `${intensity / 2}%` }}
-              />
-            )}
-          </div>
-          <div className="text-center text-sm text-gray-600 dark:text-gray-400">
-            {isPositive ? 'Positive' : 'Negative'} ({intensity}% confident)
-          </div>
-        </div> */}
+        )}
         {/* Mood with Emoji */}
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-2">
@@ -255,6 +235,7 @@ function EntryCard({ entry }: { entry: Entry }) {
             <ChevronRight className="w-4 h-4 ml-1" />
           </Link>
         </div>
+        {/* Show classifiers if exists */}
       </div>
     </motion.div>
   );

@@ -1,66 +1,129 @@
 import torch
 from transformers import pipeline
 from flask import Flask, request, jsonify
+from flask_cors import CORS
+from typing import List, Dict
+import logging
+from functools import lru_cache
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Create Flask app
 app = Flask(__name__)
+# Enable CORS for all routes
+CORS(app)
 
-# Load the models
-sentiment_analysis = pipeline("sentiment-analysis")
-zero_shot_classifier = pipeline("zero-shot-classification")
+class JournalAnalyzer:
+    """Singleton class to handle journal entry analysis operations"""
+    _instance = None
+    
+    JOURNAL_CATEGORIES = [
+        "Personal Reflection",
+        "Goal Setting",
+        "Emotional Processing",
+        "Daily Recap",
+        "Career Thoughts",
+        "Relationship Insights",
+        "Mental Health Check",
+        "Creative Writing",
+        "Learning and Growth",
+        "Travel and Adventure",
+        "Gratitude and Positivity",
+        "Stress and Challenges",
+        "Future Planning",
+        "Self-Care",
+        "Spiritual or Philosophical Musings"
+    ]
 
-# Define journal categories
-JOURNAL_CATEGORIES = [
-    "Personal Reflection",
-    "Goal Setting",
-    "Emotional Processing",
-    "Daily Recap",
-    "Career Thoughts",
-    "Relationship Insights",
-    "Mental Health Check",
-    "Creative Writing",
-    "Learning and Growth",
-    "Travel and Adventure",
-    "Gratitude and Positivity",
-    "Stress and Challenges",
-    "Future Planning",
-    "Self-Care",
-    "Spiritual or Philosophical Musings"
-]
+    def __new__(cls):
+        if cls._instance is None:
+            cls._instance = super(JournalAnalyzer, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
 
-@app.route("/analyze", methods=["POST"])
-def analyze_sentiment():
-    try:
-        data = request.json
-        text = data["text"]
+    def __init__(self):
+        """Initialize the ML models only once"""
+        if self._initialized:
+            return
+            
+        try:
+            logger.info("Loading ML models...")
+            self.sentiment_analyzer = pipeline("sentiment-analysis")
+            self.category_classifier = pipeline("zero-shot-classification")
+            self._initialized = True
+            logger.info("ML models successfully loaded")
+        except Exception as e:
+            logger.error(f"Error loading ML models: {str(e)}")
+            raise
 
-        # Perform sentiment analysis
-        sentiment_result = sentiment_analysis(text)
-
-        # Add zero-shot classification for categories
-        category_result = zero_shot_classifier(
-            text, 
-            JOURNAL_CATEGORIES,
-            multi_label=True
-        )
-
-        # Get top 3 categories with scores above 10%
-        top_categories = [
-            {"category": label, "score": score}
-            for label, score in zip(category_result['labels'], category_result['scores'])
-            if score > 0.1
-        ][:3]
-
-        # Structure response to match PHP client expectations
-        response = {
-            "sentiment": sentiment_result[0]["label"],
-            "score": sentiment_result[0]["score"],  # Changed from sentiment_score to score
-            "categories": top_categories
+    def analyze_sentiment(self, text: str) -> Dict:
+        """Analyze sentiment of input text"""
+        result = self.sentiment_analyzer(text)
+        return {
+            "label": result[0]["label"],
+            "score": result[0]["score"]
         }
 
+    def classify_categories(self, text: str, threshold: float = 0.1, top_k: int = 3) -> List[Dict]:
+        """Classify text into journal categories"""
+        result = self.category_classifier(
+            text,
+            self.JOURNAL_CATEGORIES,
+            multi_label=True
+        )
+        
+        return [
+            {"category": label, "score": float(score)}
+            for label, score in zip(result['labels'], result['scores'])
+            if score > threshold
+        ][:top_k]
+
+@lru_cache(maxsize=1)
+def get_analyzer():
+    """Cached analyzer instance"""
+    return JournalAnalyzer()
+
+# Initialize analyzer outside of route handlers
+analyzer = get_analyzer()
+
+@app.route("/analyze", methods=["POST"])
+def analyze_journal():
+    """Endpoint to analyze journal entries"""
+    try:
+        # Validate request
+        if not request.is_json:
+            return jsonify({"error": "Content-Type must be application/json"}), 400
+        
+        data = request.json
+        if "text" not in data:
+            return jsonify({"error": "Missing required field: text"}), 400
+        
+        text = data["text"]
+        if not isinstance(text, str) or not text.strip():
+            return jsonify({"error": "Text field must be a non-empty string"}), 400
+
+        # Process the journal entry
+        sentiment_result = analyzer.analyze_sentiment(text)
+        categories = analyzer.classify_categories(text)
+
+        response = {
+            "sentiment": sentiment_result["label"],
+            "score": sentiment_result["score"],
+            "categories": categories
+        }
+
+        logger.info("Successfully processed journal entry")
         return jsonify(response)
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        logger.error(f"Error processing request: {str(e)}")
+        return jsonify({"error": "Internal server error"}), 500
+
+@app.route("/health", methods=["GET"])
+def health_check():
+    return jsonify({"status": "healthy"}), 200
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=False)
