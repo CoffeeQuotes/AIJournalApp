@@ -31,9 +31,22 @@ try {
             $stmt->bindParam(':id', $id, PDO::PARAM_INT);
             $stmt->bindParam(':user_id', $userId, PDO::PARAM_INT);
             $stmt->execute();
-            $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($row) {
+            $journalEntry = $stmt->fetch(PDO::FETCH_ASSOC);
+            // Get the classifiers for the journal entry
+            $stmt = $pdo->prepare("SELECT * FROM journal_classifiers WHERE journal_entries_id = :journal_entries_id");
+            $stmt->bindParam(':journal_entries_id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+            $classifiers = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $row = [
+                'id' => $journalEntry['id'],
+                'user_id' => $journalEntry['user_id'],
+                'entry_text' => $journalEntry['entry_text'],
+                'sentiment_score' => $journalEntry['sentiment_score'],
+                'mood' => $journalEntry['mood'],
+                'created_at' => $journalEntry['created_at'],
+                'classifiers' => $classifiers
+            ];
+            if ($journalEntry) {
                 $appSettings->respond([
                     'data' => $row,
                     'message' => 'Journal entry retrieved successfully!',

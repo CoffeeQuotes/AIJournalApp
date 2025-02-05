@@ -12,6 +12,9 @@ import { useRouter } from "next/navigation";
 import AppHeader from "@/components/AppHeader";
 import useSocket from "@/hooks/useSocket";
 
+interface Classfier {
+  classifier: string;
+}
 interface SingleEntry {
   id: number;
   date: string;
@@ -19,6 +22,7 @@ interface SingleEntry {
   title: string;
   content: string;
   mood: string;
+  classifier: Classfier[];
 }
 
 const getMoodEmoji = (mood: string) => {
@@ -57,7 +61,8 @@ export default function JournalEntry({ params }: { params: Promise<{ id: string 
             time: new Date(data.created_at).toLocaleTimeString(),
             title: generateTitle(data.entry_text),
             content: data.entry_text,
-            mood: data.mood
+            mood: data.mood,
+            classifier: data.classifiers,
           };
           setEntry(formattedEntry);
         } else {
@@ -159,6 +164,17 @@ export default function JournalEntry({ params }: { params: Promise<{ id: string 
                   {paragraph}
                 </p>
               ))}
+            </div>
+
+            <div className="mt-8">
+              <h2 className="text-xl font-bold text-rose-800 dark:text-rose-200 mb-4">Classifiers</h2>
+              <ul className="list-disc list-inside">
+                {entry.classifier.map((classifier, index) => (
+                  <li key={index} className="mb-2 text-gray-700 dark:text-gray-300">
+                    {classifier.classifier}
+                  </li>
+                ))}
+              </ul>
             </div>
 
             <div className="mt-8">
