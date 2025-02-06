@@ -19,3 +19,189 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Calendar Base Styles */
+.custom-calendar {
+  --fc-small-font-size: 0.85em;
+  --fc-page-bg-color: var(--background);
+  --fc-neutral-bg-color: var(--background);
+  --fc-border-color: theme('colors.gray.200');
+  --fc-today-bg-color: theme('colors.rose.50');
+  --fc-list-event-hover-bg-color: theme('colors.rose.50');
+  
+  /* Event styles */
+  --fc-event-border-color: transparent;
+  --fc-event-text-color: theme('colors.gray.900');
+  --fc-event-selected-overlay-color: rgba(0, 0, 0, 0.25);
+  
+  /* Day/Date Styles */
+  --fc-daygrid-event-dot-width: 8px;
+  --fc-daygrid-event-padding: 2px 4px;
+  --fc-daygrid-event-margin: 1px 2px;
+}
+
+/* Dark mode styles */
+.dark .custom-calendar {
+  --fc-page-bg-color: theme('colors.zinc.800');
+  --fc-neutral-bg-color: theme('colors.zinc.800');
+  --fc-border-color: theme('colors.zinc.700');
+  --fc-today-bg-color: theme('colors.zinc.700');
+  --fc-event-text-color: theme('colors.white');
+}
+
+/* Calendar Header Styles */
+.custom-calendar .fc-header-toolbar {
+  margin-bottom: 1rem !important;
+  padding: 0.5rem;
+}
+
+/* Calendar Table Styles */
+.custom-calendar .fc-theme-standard td,
+.custom-calendar .fc-theme-standard th {
+  border-color: var(--fc-border-color);
+  padding: 4px;
+}
+
+/* Day Cell Styles */
+.custom-calendar .fc-daygrid-day {
+  transition: background-color 0.2s;
+}
+
+.custom-calendar .fc-daygrid-day:hover {
+  background-color: theme('colors.gray.50');
+}
+
+.dark .custom-calendar .fc-daygrid-day:hover {
+  background-color: theme('colors.zinc.700');
+}
+
+/* Day Number Styles */
+.custom-calendar .fc-daygrid-day-number {
+  font-size: 0.875rem;
+  padding: 4px 8px !important;
+  color: var(--foreground);
+}
+
+/* Event Styles */
+.custom-calendar .fc-event {
+  border-radius: 4px;
+  margin: 1px 0;
+  transition: transform 0.2s;
+}
+
+.custom-calendar .fc-event:hover {
+  transform: translateY(-1px);
+}
+
+/* Event Content Styles */
+.custom-calendar .fc-event-title {
+  font-weight: 500;
+  padding: 2px 4px;
+}
+
+/* More Link Styles */
+.custom-calendar .fc-more-link {
+  font-size: 0.75rem;
+  padding: 2px 4px;
+  margin: 2px 0;
+  background-color: theme('colors.rose.50');
+  border-radius: 4px;
+  color: theme('colors.rose.600');
+  display: block;
+  text-align: center;
+  transition: background-color 0.2s;
+}
+
+.dark .custom-calendar .fc-more-link {
+  background-color: theme('colors.zinc.700');
+  color: theme('colors.rose.300');
+}
+
+.custom-calendar .fc-more-link:hover {
+  background-color: theme('colors.rose.100');
+  text-decoration: none;
+}
+
+.dark .custom-calendar .fc-more-link:hover {
+  background-color: theme('colors.zinc.600');
+}
+
+/* Today Cell Styles */
+.custom-calendar .fc-day-today {
+  background-color: var(--fc-today-bg-color) !important;
+}
+
+/* Cell Content Styles */
+.custom-calendar .fc-daygrid-day-frame {
+  min-height: 80px;
+}
+
+/* Disabled Day Styles */
+.custom-calendar .fc-day-disabled {
+  background-color: theme('colors.gray.50');
+}
+
+.dark .custom-calendar .fc-day-disabled {
+  background-color: theme('colors.zinc.900');
+}
+
+/* Week Number Styles */
+.custom-calendar .fc-daygrid-week-number {
+  background-color: theme('colors.gray.100');
+  color: theme('colors.gray.600');
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-size: 0.75rem;
+}
+
+.dark .custom-calendar .fc-daygrid-week-number {
+  background-color: theme('colors.zinc.700');
+  color: theme('colors.gray.300');
+}
+
+/* Other Month Days */
+.custom-calendar .fc-day-other {
+  background-color: theme('colors.gray.50');
+}
+
+.dark .custom-calendar .fc-day-other {
+  background-color: theme('colors.zinc.900');
+}
+
+/* Custom Scrollbar */
+.custom-calendar ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.custom-calendar ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-calendar ::-webkit-scrollbar-thumb {
+  background-color: theme('colors.gray.300');
+  border-radius: 4px;
+}
+
+.dark .custom-calendar ::-webkit-scrollbar-thumb {
+  background-color: theme('colors.zinc.600');
+}
+
+/* Popup Event Styles */
+.custom-calendar .fc-popover {
+  border: 1px solid var(--fc-border-color);
+  border-radius: 6px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  background-color: var(--fc-page-bg-color);
+}
+
+.custom-calendar .fc-popover-header {
+  background-color: theme('colors.gray.50');
+  padding: 4px 8px;
+  border-top-left-radius: 6px;
+  border-top-right-radius: 6px;
+}
+
+.dark .custom-calendar .fc-popover-header {
+  background-color: theme('colors.zinc.700');
+}

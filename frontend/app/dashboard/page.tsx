@@ -11,25 +11,10 @@ import AppHeader from "@/components/AppHeader"
 import { useAuth } from "@/hooks/useAuth"
 import { fetchData } from "@/utils/api"
 import useSocket from "@/hooks/useSocket"
-import { Calendar, dateFnsLocalizer } from "react-big-calendar"
-import format from "date-fns/format"
-import parse from "date-fns/parse"
-import startOfWeek from "date-fns/startOfWeek"
-import getDay from "date-fns/getDay"
-import enUS from "date-fns/locale/en-US"
 import "react-big-calendar/lib/css/react-big-calendar.css"
+import MoodCalendar from "@/components/MoodCalendar"
 
-const locales = {
-  "en-US": enUS,
-}
 
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales,
-})
 
 interface MoodEntry {
   recorded_date: string
@@ -37,22 +22,22 @@ interface MoodEntry {
   count: number
 }
 
-const moodColors = {
-  POSITIVE: "#4CAF50",
-  NEGATIVE: "#F44336",
-  NEUTRAL: "#FFC107",
-}
+// const moodColors = {
+//   POSITIVE: "#4CAF50",
+//   NEGATIVE: "#F44336",
+//   NEUTRAL: "#FFC107",
+// }
 
-const MoodIcon = ({ mood }: { mood: "POSITIVE" | "NEGATIVE" | "NEUTRAL" }) => {
-  switch (mood) {
-    case "POSITIVE":
-      return <Smile className="w-5 h-5" style={{ color: moodColors.POSITIVE }} />
-    case "NEGATIVE":
-      return <Frown className="w-5 h-5" style={{ color: moodColors.NEGATIVE }} />
-    case "NEUTRAL":
-      return <Meh className="w-5 h-5" style={{ color: moodColors.NEUTRAL }} />
-  }
-}
+// const MoodIcon = ({ mood }: { mood: "POSITIVE" | "NEGATIVE" | "NEUTRAL" }) => {
+//   switch (mood) {
+//     case "POSITIVE":
+//       return <Smile className="w-5 h-5" style={{ color: moodColors.POSITIVE }} />
+//     case "NEGATIVE":
+//       return <Frown className="w-5 h-5" style={{ color: moodColors.NEGATIVE }} />
+//     case "NEUTRAL":
+//       return <Meh className="w-5 h-5" style={{ color: moodColors.NEUTRAL }} />
+//   }
+// }
 
 export default function Dashboard() {
   const { user, logout } = useAuth()
@@ -103,38 +88,38 @@ export default function Dashboard() {
   }
 
   // Aggregate moods per date
-  const aggregatedMoods: Record<string, { mood: string; count: number }> = {}
+  // const aggregatedMoods: Record<string, { mood: string; count: number }> = {}
 
-  moodEntries.forEach((entry) => {
-    if (aggregatedMoods[entry.recorded_date]) {
-      aggregatedMoods[entry.recorded_date].count += entry.count
-    } else {
-      aggregatedMoods[entry.recorded_date] = { mood: entry.mood, count: entry.count }
-    }
-  })
+  // moodEntries.forEach((entry) => {
+  //   if (aggregatedMoods[entry.recorded_date]) {
+  //     aggregatedMoods[entry.recorded_date].count += entry.count
+  //   } else {
+  //     aggregatedMoods[entry.recorded_date] = { mood: entry.mood, count: entry.count }
+  //   }
+  // })
 
-  // Format events for Calendar
-  const calendarEvents = Object.entries(aggregatedMoods).map(([date, data]) => ({
-    title: `${data.mood} (${data.count})`,
-    start: new Date(date),
-    end: new Date(date),
-    mood: data.mood,
-  }))
+  // // Format events for Calendar
+  // const calendarEvents = Object.entries(aggregatedMoods).map(([date, data]) => ({
+  //   title: `${data.mood} (${data.count})`,
+  //   start: new Date(date),
+  //   end: new Date(date),
+  //   mood: data.mood,
+  // }))
 
-  // Style events based on mood
-  const eventStyleGetter = (event: any) => ({
-    style: {
-      backgroundColor: moodColors[event.mood] || "#757575",
-      borderRadius: "5px",
-      opacity: 0.8,
-      color: "white",
-      border: "none",
-      display: "block",
-      padding: "4px",
-      textAlign: "center",
-      fontWeight: "bold",
-    },
-  })
+  // // Style events based on mood
+  // const eventStyleGetter = (event: any) => ({
+  //   style: {
+  //     backgroundColor: moodColors[event.mood] || "#757575",
+  //     borderRadius: "5px",
+  //     opacity: 0.8,
+  //     color: "white",
+  //     border: "none",
+  //     display: "block",
+  //     padding: "4px",
+  //     textAlign: "center",
+  //     fontWeight: "bold",
+  //   },
+  // })
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-rose-50 to-white dark:from-rose-950 dark:to-black flex flex-col">
@@ -166,8 +151,8 @@ export default function Dashboard() {
           </div>
 
           <div className="bg-white dark:bg-zinc-800 p-6 rounded-lg shadow-md mb-8">
-            <h2 className="text-2xl font-semibold text-rose-800 dark:text-rose-200 mb-4">Mood Calendar</h2>
-            <Calendar
+            {/* <h2 className="text-2xl font-semibold text-rose-800 dark:text-rose-200 mb-4">Mood Calendar</h2> */}
+           {/* <Calendar
               localizer={localizer}
               events={calendarEvents}
               startAccessor="start"
@@ -182,7 +167,9 @@ export default function Dashboard() {
                   </div>
                 ),
               }}
-            />
+            />*/}
+            <MoodCalendar moodEntries={moodEntries} />
+            
           </div>
         </motion.div>
       </section>
