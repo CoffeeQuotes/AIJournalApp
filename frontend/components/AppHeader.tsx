@@ -7,6 +7,7 @@ import { Bell } from "lucide-react"
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu"
 import { useAuth } from "@/hooks/useAuth"
 import { fetchData } from "@/utils/api"
+// import { useRouter } from "next/router"
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard" },
@@ -36,12 +37,12 @@ interface NotificationResponse {
 }
 
 export default function Header() {
-  const { user } = useAuth()
+  const { user, logout } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-
+  // const router = useRouter()
   useEffect(() => {
     setIsAuthenticated(!!user?.token)
   }, [user])
@@ -58,6 +59,17 @@ export default function Header() {
       if (response.status === 200 && response.data?.notifications) {
         setNotifications(response.data.notifications)
       } else {
+        // here we are facing issue regarding expired token after (1hrs)
+        // so we are not able to fetch data from server 
+        // technically the moment token expires, we should logout automatically, but we have to check if token expired then only logout
+        // so let's check if token expired or not
+        // if token expired then logout
+        if (response.status === 500 && response.message === "Unauthorized: Invalid or expired token.") {
+          console.log("Token expired")
+          // logout
+          logout()
+        }
+
         console.error("Failed to fetch notifications:", response.message)
       }
     } catch (error) {

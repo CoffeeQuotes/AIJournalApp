@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        .important { color: #336699; }
+    </style>
+{% endblock %}
+{% block header %}
+    {{ super() }}
+    {% include 'partials/navbaradmin.html' %}
+{% endblock %}
+{% block content %}
+<div class="container mx-auto py-10">
+    <div class="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm">
+      <table class="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
+        <thead class="bg-zinc-50 dark:bg-zinc-800">
+          <tr>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">ID</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Text</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Category</th>
+            <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Action</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white dark:bg-zinc-900 divide-y divide-zinc-200 dark:divide-zinc-700">
+          {% for prompt in prompts %}
+          <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-zinc-900 dark:text-zinc-200">{{ prompt.id }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">{{ prompt.text }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">{{ prompt.category }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+              <a href="/delete_prompt/{{ prompt.id }}" class="text-red-600 hover:text-red-900 dark:text-red-500 dark:hover:text-red-400 transition duration-150 ease-in-out">Delete</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Feb 05, 2025 at 01:14 AM
+-- Generation Time: Feb 08, 2025 at 05:59 AM
 -- Server version: 10.11.6-MariaDB-0+deb12u1
 -- PHP Version: 8.2.26
 
@@ -20,6 +20,28 @@ SET time_zone = "+00:00";
 --
 -- Database: `notesapp`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `admins`
+--
+
+CREATE TABLE `admins` (
+  `id` int(11) NOT NULL,
+  `username` varchar(50) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `password` varchar(255) NOT NULL,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `admins`
+--
+
+INSERT INTO `admins` (`id`, `username`, `email`, `password`, `created_at`, `updated_at`) VALUES
+(16, 'admin', 'admin@admin.com', 'scrypt:32768:8:1$cyfZwfpDFtqEovH7$8bcf9596a69e32f1bf10d9d2df9626f8548b944555d3e7244d7e7431017f2866b4aa0ae5b33ae9003c38a8410ce73264bae60354ad7562c9ce6fc2742fb9e582', '2025-02-07 23:09:25', '2025-02-07 23:09:25');
 
 -- --------------------------------------------------------
 
@@ -62,7 +84,9 @@ INSERT INTO `blacklisted_tokens` (`id`, `token`, `blacklisted_at`) VALUES
 (22, '745e49e38594b477c4e73bad51870623d1999da155f656894ac027d556a964cf', '2025-02-03 04:51:38'),
 (23, 'af63e7153c0977cf75970200a503039e955f01442f4171c0ba6a1a767d049291', '2025-02-03 05:55:35'),
 (24, 'bc37b850351f724e2e7566c872916a8e2fd435807d71a5975bb91b5ce6fcd7d4', '2025-02-03 06:53:02'),
-(25, '706d402a1e7d735aa3d90e7a1e6c65f11380b0ab34bc0c9a008a498db27d2bf1', '2025-02-03 20:29:54');
+(25, '706d402a1e7d735aa3d90e7a1e6c65f11380b0ab34bc0c9a008a498db27d2bf1', '2025-02-03 20:29:54'),
+(26, '7090981c9761e870e869a66f512db8e254f17faa896dac41f33a7038d0a53a5c', '2025-02-05 21:39:17'),
+(27, 'e667f4e531f83a71b3e661cfcafaf70b4f6eb7a0aaa447b89a01bd676364e75d', '2025-02-06 22:00:06');
 
 -- --------------------------------------------------------
 
@@ -89,7 +113,28 @@ INSERT INTO `journal_classifiers` (`id`, `journal_entries_id`, `user_id`, `class
 (3, 32, 8, 'Learning and Growth', 0.6229, '2025-02-04 19:35:45'),
 (4, 33, 8, 'Personal Reflection', 0.9418, '2025-02-04 19:41:05'),
 (5, 33, 8, 'Learning and Growth', 0.8206, '2025-02-04 19:41:05'),
-(6, 33, 8, 'Goal Setting', 0.7282, '2025-02-04 19:41:05');
+(6, 33, 8, 'Goal Setting', 0.7282, '2025-02-04 19:41:05'),
+(7, 34, 8, 'Personal Reflection', 0.9020, '2025-02-05 19:28:52'),
+(8, 34, 8, 'Stress and Challenges', 0.7908, '2025-02-05 19:28:52'),
+(9, 34, 8, 'Self-Care', 0.4919, '2025-02-05 19:28:52'),
+(10, 35, 8, 'Personal Reflection', 0.7039, '2025-02-05 19:34:03'),
+(11, 35, 8, 'Learning and Growth', 0.6141, '2025-02-05 19:34:03'),
+(12, 35, 8, 'Spiritual or Philosophical Musings', 0.4340, '2025-02-05 19:34:03'),
+(13, 36, 8, 'Spiritual or Philosophical Musings', 0.3869, '2025-02-05 19:46:49'),
+(14, 36, 8, 'Personal Reflection', 0.3796, '2025-02-05 19:46:49'),
+(15, 36, 8, 'Stress and Challenges', 0.3450, '2025-02-05 19:46:49'),
+(16, 37, 8, 'Learning and Growth', 0.9197, '2025-02-05 20:03:19'),
+(17, 37, 8, 'Stress and Challenges', 0.5822, '2025-02-05 20:03:19'),
+(18, 37, 8, 'Relationship Insights', 0.3476, '2025-02-05 20:03:19'),
+(19, 38, 8, 'Stress and Challenges', 0.6668, '2025-02-05 20:13:27'),
+(20, 38, 8, 'Mental Health Check', 0.4276, '2025-02-05 20:13:27'),
+(21, 38, 8, 'Relationship Insights', 0.3787, '2025-02-05 20:13:27'),
+(22, 39, 8, 'Stress and Challenges', 0.7445, '2025-02-05 20:32:53'),
+(23, 39, 8, 'Personal Reflection', 0.6137, '2025-02-05 20:32:53'),
+(24, 39, 8, 'Travel and Adventure', 0.6058, '2025-02-05 20:32:53'),
+(25, 40, 8, 'Stress and Challenges', 0.9387, '2025-02-05 20:56:17'),
+(26, 40, 8, 'Emotional Processing', 0.1290, '2025-02-05 20:56:17'),
+(27, 40, 8, 'Mental Health Check', 0.1174, '2025-02-05 20:56:17');
 
 -- --------------------------------------------------------
 
@@ -130,7 +175,14 @@ INSERT INTO `journal_entries` (`id`, `user_id`, `entry_text`, `sentiment_score`,
 (30, 8, 'Today was such a awesome day. I love the fact I met my old friends. We enjoyed moutain treking. ', 0.9999, 'POSITIVE', '2025-02-03 06:54:56'),
 (31, 8, 'Today was tough. I\'m struggling with anxiety and feeling overwhelmed at work.', 0.5887, 'POSITIVE', '2025-02-04 19:15:25'),
 (32, 8, 'I\'m excited about my new project and set some ambitious goals for the next quarter.', 0.9998, 'POSITIVE', '2025-02-04 19:35:45'),
-(33, 8, 'Met with my best friend today. We had a deep conversation about life and our dreams.', 0.9998, 'POSITIVE', '2025-02-04 19:41:05');
+(33, 8, 'Met with my best friend today. We had a deep conversation about life and our dreams.', 0.9998, 'POSITIVE', '2025-02-04 19:41:05'),
+(34, 8, 'Life is going on. It is going upon its own. There\'s no control over it. I am just surviving this life.', 0.9908, 'NEGATIVE', '2025-02-05 19:28:50'),
+(35, 8, 'Life such a awesome dream. It get worse sometimes, sometimes better. The best part is to keep calm and carry on. ', 0.9934, 'POSITIVE', '2025-02-05 19:34:02'),
+(36, 8, 'Today again I saw couple fighting on street. I didn\'t understand if people always keep fighting on small issues, then why they go into relationship. ', 0.9871, 'NEGATIVE', '2025-02-05 19:46:49'),
+(37, 8, 'Sometimes bugs in code frustrate me so much but help me to learn new things too.', 0.9769, 'NEGATIVE', '2025-02-05 20:03:19'),
+(38, 8, 'How many times I have to test more. Totally heartbreaking!', 0.9891, 'POSITIVE', '2025-02-05 20:13:27'),
+(39, 8, 'What should one do when he keeps on trying something but face failures again and again.', 0.9997, 'NEGATIVE', '2025-02-05 20:32:53'),
+(40, 8, 'So many tolls, tired of it.', 0.9995, 'NEGATIVE', '2025-02-05 20:56:16');
 
 -- --------------------------------------------------------
 
@@ -172,7 +224,14 @@ INSERT INTO `mood_metrics` (`id`, `user_id`, `mood`, `count`, `recorded_date`) V
 (23, 8, 'POSITIVE', 1, '2025-02-03'),
 (24, 8, 'POSITIVE', 1, '2025-02-05'),
 (25, 8, 'POSITIVE', 1, '2025-02-05'),
-(26, 8, 'POSITIVE', 1, '2025-02-05');
+(26, 8, 'POSITIVE', 1, '2025-02-05'),
+(27, 8, 'NEGATIVE', 1, '2025-02-06'),
+(28, 8, 'POSITIVE', 1, '2025-02-06'),
+(29, 8, 'NEGATIVE', 1, '2025-02-06'),
+(30, 8, 'NEGATIVE', 1, '2025-02-06'),
+(31, 8, 'POSITIVE', 1, '2025-02-06'),
+(32, 8, 'NEGATIVE', 1, '2025-02-06'),
+(33, 8, 'NEGATIVE', 1, '2025-02-06');
 
 -- --------------------------------------------------------
 
@@ -241,7 +300,11 @@ INSERT INTO `notifications` (`id`, `user_id`, `title`, `message`, `clickable_url
 (60, 3, 'Why don\'t you write?', 'Who made you smile today? What you like about today?', 'http://localhost:3000/journal/create', 0, '2025-02-03 19:55:57'),
 (61, 8, 'Why don\'t you write?', 'Who made you smile today? What you like about today?', 'http://localhost:3000/journal/create', 1, '2025-02-03 19:55:57'),
 (62, 13, 'Why don\'t you write?', 'Who made you smile today? What you like about today?', 'http://localhost:3000/journal/create', 0, '2025-02-03 19:55:57'),
-(63, 14, 'Why don\'t you write?', 'Who made you smile today? What you like about today?', 'http://localhost:3000/journal/create', 0, '2025-02-03 19:55:57');
+(63, 14, 'Why don\'t you write?', 'Who made you smile today? What you like about today?', 'http://localhost:3000/journal/create', 0, '2025-02-03 19:55:57'),
+(64, 3, 'Why don\'t you write?', 'Who made you smile today? What you like about today?', 'http://localhost:3000/journal/create', 0, '2025-02-05 21:04:19'),
+(65, 8, 'Why don\'t you write?', 'Who made you smile today? What you like about today?', 'http://localhost:3000/journal/create', 0, '2025-02-05 21:04:19'),
+(66, 13, 'Why don\'t you write?', 'Who made you smile today? What you like about today?', 'http://localhost:3000/journal/create', 0, '2025-02-05 21:04:19'),
+(67, 14, 'Why don\'t you write?', 'Who made you smile today? What you like about today?', 'http://localhost:3000/journal/create', 0, '2025-02-05 21:04:19');
 
 -- --------------------------------------------------------
 
@@ -382,7 +445,18 @@ INSERT INTO `tokens` (`id`, `user_id`, `token`, `expires_at`) VALUES
 (71, 8, '42ec91866628c8e1d4449cd33ca5341298218dcc891f85510df90d7be22a3fc6', '2025-02-03 19:43:43'),
 (72, 8, '706d402a1e7d735aa3d90e7a1e6c65f11380b0ab34bc0c9a008a498db27d2bf1', '2025-02-03 20:53:11'),
 (73, 8, 'b76b7216368dea872059927a355c1efb20d4186aa73d3bcd817b88b1b00466e3', '2025-02-04 06:21:50'),
-(74, 8, '1f25e567f8154e7eec96bf6675e00c49949eda380e05bc7d6751b03bb039719c', '2025-02-04 19:48:35');
+(74, 8, '1f25e567f8154e7eec96bf6675e00c49949eda380e05bc7d6751b03bb039719c', '2025-02-04 19:48:35'),
+(75, 8, '365247fa2315711b1cc789af5dcf147fb5a272f4abda09108811a2340d527b43', '2025-02-05 18:57:52'),
+(76, 8, '91e2945442667e54417a8a14de5119b4793cf9ba59b6de28b7b0dc2ee9823e5b', '2025-02-05 19:59:13'),
+(77, 8, '6920a254183ea1e6a520587fbf6b6e1ecbef712d2d4f2701b4acefeb4eea3f3f', '2025-02-05 21:00:31'),
+(78, 8, '7090981c9761e870e869a66f512db8e254f17faa896dac41f33a7038d0a53a5c', '2025-02-05 22:02:26'),
+(79, 8, 'd246fd50366afd3576f9c51284bf0385f98b2a18695f038f9309c156a05ce32f', '2025-02-05 22:39:46'),
+(80, 8, '6a037277a74b0e52eec665135b0b388ef1625466edb1617d5a3de6edd2c48122', '2025-02-05 23:43:36'),
+(81, 8, '6a9ae0c0baaef646a2f57bc71f8ed4caeeaab0e3c14d4c7902f86b2a6f533101', '2025-02-06 20:13:01'),
+(82, 8, 'faf439de86e57faa4fb80af16cdf18aabaf876bbe11c7c58cf7031ef8b008585', '2025-02-06 21:13:48'),
+(83, 8, 'e667f4e531f83a71b3e661cfcafaf70b4f6eb7a0aaa447b89a01bd676364e75d', '2025-02-06 22:58:55'),
+(84, 8, 'e5e7db512c1bccdb117c0eaf90766b495e770a29f7af636218d9e51f248b1461', '2025-02-06 23:00:17'),
+(85, 8, 'ed4622df78b94649bfa5602db36be50cf8e13938bda273a255db9b29d4d05937', '2025-02-08 01:26:59');
 
 -- --------------------------------------------------------
 
@@ -412,6 +486,15 @@ INSERT INTO `users` (`id`, `username`, `email`, `password`, `created_at`, `updat
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `admins`
+--
+ALTER TABLE `admins`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `email` (`email`),
+  ADD UNIQUE KEY `username` (`username`),
+  ADD UNIQUE KEY `email_2` (`email`);
 
 --
 -- Indexes for table `blacklisted_tokens`
@@ -492,34 +575,40 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `admins`
+--
+ALTER TABLE `admins`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
 -- AUTO_INCREMENT for table `blacklisted_tokens`
 --
 ALTER TABLE `blacklisted_tokens`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `journal_classifiers`
 --
 ALTER TABLE `journal_classifiers`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT for table `journal_entries`
 --
 ALTER TABLE `journal_entries`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT for table `mood_metrics`
 --
 ALTER TABLE `mood_metrics`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
 
 --
 -- AUTO_INCREMENT for table `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=68;
 
 --
 -- AUTO_INCREMENT for table `password_resets`
@@ -543,7 +632,7 @@ ALTER TABLE `settings`
 -- AUTO_INCREMENT for table `tokens`
 --
 ALTER TABLE `tokens`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=75;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=86;
 
 --
 -- AUTO_INCREMENT for table `users`
