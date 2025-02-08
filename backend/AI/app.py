@@ -1,7 +1,11 @@
+from sqlalchemy import func
+from sqlalchemy import asc, desc
+
 import torch
+import requests
 from transformers import pipeline
 from flask_sqlalchemy import SQLAlchemy
-from flask import Flask, request, jsonify, render_template, redirect, url_for, session
+from flask import Flask, flash, request, jsonify, render_template, redirect, url_for, session
 from flask_cors import CORS
 from typing import List, Dict
 import logging
@@ -32,6 +36,7 @@ with app.app_context():
 Admin = Base.classes.admins
 User = Base.classes.users
 Prompt = Base.classes.prompts
+Notification = Base.classes.notifications
 print(Base.classes.keys())  # Debugging
 
 
@@ -184,16 +189,243 @@ def dashboard():
 def users():
     if 'admin' not in session:
         return redirect(url_for('index'))
-    users = db.session.query(User).all()
-    return render_template('users.html', users=users)
+    
+    # Get query parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    sort_by = request.args.get('sort_by', 'id')
+    order = request.args.get('order', 'asc')
+    
+    # Validate sort column
+    valid_sort_columns = ['id', 'username', 'email']
+    if sort_by not in valid_sort_columns:
+        sort_by = 'id'
+    
+    # Query sorting
+    query = db.session.query(User)
+    if order == 'desc':
+        query = query.order_by(getattr(User, sort_by).desc())
+    else:
+        query = query.order_by(getattr(User, sort_by).asc())
+    
+     # Paginate manually
+    total_records = query.count()
+    total_pages = (total_records + per_page - 1) // per_page  # Calculate total pages
+    
+    paginated_users = query.offset((page - 1) * per_page).limit(per_page).all()    
+    
+    return render_template(
+        'users.html', 
+        users=paginated_users,
+        page=page,
+        total_pages=total_pages,
+        sort_by=sort_by,
+        order=order
+    )
+
 
 @app.route('/prompts', methods=['GET'])
-def prompts():
+def list_prompts():
     if 'admin' not in session:
         return redirect(url_for('index'))
-    prompts = db.session.query(Prompt).all()
-    print(prompts)
-    return render_template('prompts.html', prompts=prompts)
+
+    # Get query parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    sort_by = request.args.get('sort_by', 'id')
+    order = request.args.get('order', 'asc')
+    category_filter = request.args.get('category', None)  # Get category filter
+
+    # Validate sort column
+    valid_sort_columns = ['id', 'text', 'category']
+    if sort_by not in valid_sort_columns:
+        sort_by = 'id'
+
+    # Query sorting
+    query = db.session.query(Prompt)
+    if order == 'desc':
+        query = query.order_by(getattr(Prompt, sort_by).desc())
+    else:
+        query = query.order_by(getattr(Prompt, sort_by).asc())
+
+    # Apply category filter if provided
+    if category_filter:
+        query = query.filter(Prompt.category == category_filter)
+
+    # Paginate manually
+    total_records = query.count()
+    total_pages = (total_records + per_page - 1) // per_page  # Calculate total pages
+
+    paginated_prompts = query.offset((page - 1) * per_page).limit(per_page).all()
+
+    # Get distinct categories for dropdown filter
+    categories = db.session.query(Prompt.category).distinct().all()
+    categories = [c[0] for c in categories]  # Extract values from tuples
+
+    return render_template(
+        'prompts.html',
+        prompts=paginated_prompts,
+        page=page,
+        total_pages=total_pages,
+        sort_by=sort_by,
+        order=order,
+        categories=categories,
+        selected_category=category_filter
+    )
+    
+@app.route('/create_prompt', methods=['POST', 'GET'])
+def create_prompt():
+    if 'admin' not in session:
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        # Use `.get()` to avoid KeyError
+        text = request.form.get('prompt', '').strip()
+        category = request.form.get('category', '').strip()
+
+        if not text or not category:
+            flash("Please fill in all fields", "error")
+            return redirect(url_for('create_prompt'))
+
+        try:
+            new_prompt = Prompt(text=text, category=category)
+            db.session.add(new_prompt)
+            db.session.commit()
+            flash("Prompt created successfully", "success")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error creating prompt: {str(e)}", "error")
+
+        return redirect(url_for('list_prompts'))
+    
+    categories = [
+        "Personal Reflection",
+        "Goal Setting",
+        "Emotional Processing",
+        "Daily Recap",
+        "Career Thoughts",
+        "Relationship Insights",
+        "Mental Health Check",
+        "Creative Writing",
+        "Learning and Growth",
+        "Travel and Adventure",
+        "Gratitude and Positivity",
+        "Stress and Challenges",
+        "Future Planning",
+        "Self-Care",
+        "Spiritual or Philosophical Musings"
+    ]
+    return render_template('create_prompt.html', categories=categories)
+
+# send general notification 
+@app.route('/send_notification', methods=['POST', 'GET'])
+def send_notification():
+    if 'admin' not in session:
+        return redirect(url_for('index'))
+
+    if request.method == 'POST':
+        # Use `.get()` to avoid KeyError and strip whitespace
+        title = request.form.get('title', '').strip()
+        message = request.form.get('message', '').strip()
+        clickable_url = request.form.get('clickable_url', '').strip()
+
+        if not title or not message:
+            flash("Please fill in all fields", "error")
+            return redirect(url_for('send_notification'))
+
+        # API Endpoint
+        api_url = "http://localhost/notesapp/backend/api/v1/notification/index.php?action=send-general-notification"
+        
+        # Payload
+        payload = {
+            "title": title,
+            "message": message
+        }
+        if clickable_url:
+            payload["clickable_url"] = clickable_url  # Include if provided
+
+        try:
+            # Send request to the API
+            response = requests.post(api_url, json=payload, timeout=5)
+            response_data = response.json()  # Assuming API returns JSON response
+
+            if response.status_code == 200 and response_data.get("status") == 200:
+                flash("Notification sent successfully!", "success")
+            else:
+                flash(f"Failed to send notification: {response_data.get('message', 'Unknown error')}", "error")
+        
+        except requests.exceptions.RequestException as e:
+            flash(f"Error communicating with notification API: {str(e)}", "error")
+
+        return redirect(url_for('send_notification'))
+
+    return render_template('send_notification.html')  # Render the notification form
+            
+@app.route('/notification', methods=['GET'])
+def notification():
+    if 'admin' not in session:
+        return redirect(url_for('index'))
+
+    # Get pagination and sorting parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    sort_by = request.args.get('sort_by', 'created_at')
+    order = request.args.get('order', 'desc')
+
+    # Ensure sorting column is valid
+    valid_sort_columns = ['id', 'title', 'message', 'created_at']
+    if sort_by not in valid_sort_columns:
+        sort_by = 'created_at'
+
+    # Define sorting order
+    order_func = asc if order.lower() == 'asc' else desc
+
+    # Query notifications and group by title & message
+    notifications_query = (
+        db.session.query(
+            Notification.id,
+            Notification.title,
+            Notification.message,
+            func.group_concat(Notification.user_id.op('ORDER BY')(Notification.user_id)).label("users"),
+            Notification.created_at,
+        )
+        .group_by(Notification.title, Notification.message)
+        .order_by(order_func(getattr(Notification, sort_by)))  # Apply sorting
+    )
+
+    # Apply pagination
+    paginated_notifications = notifications_query.paginate(page=page, per_page=per_page, error_out=False)
+
+    return render_template(
+        'notifications.html', 
+        notifications=paginated_notifications.items, 
+        page=page, 
+        per_page=per_page, 
+        total_pages=paginated_notifications.pages, 
+        sort_by=sort_by, 
+        order=order
+    )
+
+@app.route('/delete_prompt/<int:prompt_id>', methods=['POST', 'GET'])
+def delete_prompt(prompt_id):
+    if 'admin' not in session:
+        return redirect(url_for('index'))
+
+    prompt = db.session.query(Prompt).filter_by(id=prompt_id).first()
+
+    if not prompt:
+        flash("Prompt not found!", "error")
+        return redirect(url_for('list_prompts'))
+
+    try:
+        db.session.delete(prompt)
+        db.session.commit()
+        flash("Prompt deleted successfully!", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting prompt: {str(e)}", "error")
+
+    return redirect(url_for('list_prompts'))
 
 @app.route('/create_default_admin', methods=['GET'])
 def create_default_admin():
