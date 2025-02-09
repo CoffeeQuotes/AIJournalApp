@@ -1,0 +1,180 @@
+{% extends "base.html" %}
+
+{% block title %}{{ user.username }}{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+{% endblock %}
+
+{% block header %}
+    {{ super() }}
+    {% include 'partials/navbaradmin.html' %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container mx-auto py-10">
+
+    <!-- User Profile Header -->
+    <div class="md:flex md:justify-between md:items-center mb-6 p-4 rounded-md shadow-md bg-white dark:bg-zinc-800 dark:text-zinc-50">
+        <div>
+            <h1 class="text-3xl text-emerald-600 font-semibold mb-2">{{ user.username.capitalize() }}</h1>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400">
+                <i class="fas fa-user text-zinc-400 dark:text-zinc-500 mr-1"></i> @{{ user.username }} |
+                <i class="fas fa-envelope text-zinc-400 dark:text-zinc-500 mx-1"></i> {{ user.email }} |
+                <i class="fas fa-clock text-zinc-400 dark:text-zinc-500 ml-1"></i> Joined {{ user.created_at|naturaltime }}
+            </p>
+        </div>
+        <div class="mt-4 md:mt-0 flex space-x-2">
+            <!-- Edit User Form -->
+            <form method="POST" action="{{ url_for('edit_user', id=user.id) }}" class="inline">  <!-- Replace 'edit_user' with your edit route -->
+                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+            </form>
+            <!-- Delete User Form -->
+            <form method="POST" action="{{ url_for('delete_user', id=user.id) }}" class="inline"> <!-- Replace 'delete_user' with your delete route -->
+                <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Journal Entries Table -->
+    <section class="mb-8">
+        <h2 class="text-2xl text-emerald-600 font-semibold mb-4 dark:text-emerald-400">Journal Entries</h2>
+
+        {% if journals %}
+            <table class="min-w-full leading-normal shadow-md rounded-lg overflow-hidden bg-white dark:bg-zinc-900">
+                <thead>
+                    <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800">
+                        <th class="px-5 py-3 bg-zinc-100 dark:bg-zinc-700 text-left text-xs font-semibold text-zinc-700 uppercase tracking-wider dark:text-zinc-400">
+                            Date
+                        </th>
+                        <th class="px-5 py-3 bg-zinc-100 dark:bg-zinc-700 text-left text-xs font-semibold text-zinc-700 uppercase tracking-wider dark:text-zinc-400">
+                            Entry
+                        </th>
+                        <th class="px-5 py-3 bg-zinc-100 dark:bg-zinc-700 text-left text-xs font-semibold text-zinc-700 uppercase tracking-wider dark:text-zinc-400">
+                            Mood
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-zinc-900 divide-y divide-zinc-200 dark:divide-zinc-700">
+                    {% for journal in journals %}
+                        <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800">
+                            <td class="px-5 py-5 bg-white dark:bg-zinc-800 text-sm">
+                                <p class="text-zinc-900 dark:text-zinc-50 whitespace-no-wrap">
+                                    {{ journal.created_at|naturaldate}}
+                                </p>
+                            </td>
+                            <td class="px-5 py-5 bg-white dark:bg-zinc-800 text-sm">
+                                <p class="text-zinc-900 dark:text-zinc-50">
+                                    {{ journal.entry_text }}
+                                </p>
+                            </td>
+                            <td class="px-5 py-5 bg-white dark:bg-zinc-800 text-sm">
+                                <p class="text-zinc-900 dark:text-zinc-50 whitespace-no-wrap">
+                                    {{ journal.mood }}
+                                </p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-zinc-500 dark:text-zinc-400">No journal entries found for this user.</p>
+        {% endif %}
+    </section>
+
+    <!-- Insights Section (Most Used Classifier & Mood Distribution) -->
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div class="bg-white rounded-md shadow-md p-4 dark:bg-zinc-800 dark:text-zinc-50">
+            <h3 class="text-xl text-emerald-600 font-semibold mb-2 dark:text-emerald-400">Most Used Classifier</h3>
+            {% if most_used_classifier %}
+                <p class="text-zinc-700 dark:text-zinc-300"><span class="font-medium">{{ most_used_classifier.classifier }}</span> (Used {{ most_used_classifier.count }} times)</p>
+            {% else %}
+                <p class="text-zinc-500 dark:text-zinc-400">No classifier data available.</p>
+            {% endif %}
+        </div>
+
+        <div class="bg-white rounded-md shadow-md p-4 dark:bg-zinc-800 dark:text-zinc-50">
+            <h3 class="text-xl text-emerald-600 font-semibold mb-2 dark:text-emerald-400">Mood Distribution</h3>
+            {% if mood_distribution %}
+                <ul class="list-none pl-0">
+                    {% for mood in mood_distribution %}
+                        <li class="text-zinc-700 dark:text-zinc-300"><span class="font-medium">{{ mood.mood }}:</span> {{ mood.count }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p class="text-zinc-500 dark:text-zinc-400">No mood distribution data available.</p>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- Mood Metrics Over Time -->
+    <section class="mb-8">
+        <h2 class="text-2xl text-emerald-600 font-semibold mb-4 dark:text-emerald-400">Mood Metrics Over Time (Last 7 Days)</h2>
+        {% if mood_metrics %}
+            <table class="min-w-full leading-normal shadow-md rounded-lg overflow-hidden bg-white dark:bg-zinc-900">
+                <thead>
+                    <tr>
+                        <th class="px-5 py-3 bg-zinc-100 dark:bg-zinc-700 text-left text-xs font-semibold text-zinc-700 uppercase tracking-wider dark:text-zinc-400">
+                            Date
+                        </th>
+                        <th class="px-5 py-3 bg-zinc-100 dark:bg-zinc-700 text-left text-xs font-semibold text-zinc-700 uppercase tracking-wider dark:text-zinc-400">
+                            Mood
+                        </th>
+                        <th class="px-5 py-3 bg-zinc-100 dark:bg-zinc-700 text-left text-xs font-semibold text-zinc-700 uppercase tracking-wider dark:text-zinc-400">
+                            Count
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white dark:bg-zinc-900 divide-y divide-zinc-200 dark:divide-zinc-700">
+                    {% for metric in mood_metrics %}
+                        <tr class="hover:bg-zinc-50 dark:hover:bg-zinc-800">
+                            <td class="px-5 py-5 bg-white dark:bg-zinc-800 text-sm">
+                                <p class="text-zinc-900 dark:text-zinc-50 whitespace-no-wrap">
+                                    {{ metric.recorded_date }}
+                                </p>
+                            </td>
+                            <td class="px-5 py-5 bg-white dark:bg-zinc-800 text-sm">
+                                <p class="text-zinc-900 dark:text-zinc-50 whitespace-no-wrap">
+                                    {{ metric.mood }}
+                                </p>
+                            </td>
+                             <td class="px-5 py-5 bg-white dark:bg-zinc-800 text-sm">
+                                <p class="text-zinc-900 dark:text-zinc-50 whitespace-no-wrap">
+                                    {{ metric.count }}
+                                </p>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="text-zinc-500 dark:text-zinc-400">No mood metrics data available for the last 7 days.</p>
+        {% endif %}
+    </section>
+
+
+    <!-- Pagination -->
+    <div class="flex justify-center items-center mt-4">
+        {% if page > 1 %}
+            <a href="{{ url_for('user_details', id=user.id, page=page-1, per_page=per_page) }}" class="bg-zinc-200 hover:bg-zinc-300 text-zinc-700 font-semibold py-2 px-4 rounded-l dark:bg-zinc-700 dark:hover:bg-zinc-600 dark:text-zinc-300">
+                <i class="fas fa-chevron-left"></i> Previous
+            </a>
+        {% endif %}
+        <span class="mx-2 text-zinc-700 dark:text-zinc-300">Page {{ page }}</span>
+        {% if page < total_journal_pages %}
+            <a href="{{ url_for('user_details', id=user.id, page=page+1, per_page=per_page) }}" class="bg-zinc-200 hover:bg-zinc-300 text-zinc-700 font-semibold py-2 px-4 rounded-r dark:bg-zinc-700 dark:hover:bg-zinc-600 dark:text-zinc-300">
+                Next <i class="fas fa-chevron-right"></i>
+            </a>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}

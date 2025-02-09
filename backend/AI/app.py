@@ -1,6 +1,7 @@
-from sqlalchemy import func
+from sqlalchemy import func, cast, Date, text
+from datetime import datetime, timedelta
 from sqlalchemy import asc, desc
-
+import humanize
 import torch
 import requests
 from transformers import pipeline
@@ -22,6 +23,9 @@ logger = logging.getLogger(__name__)
 # Create Flask app
 app = Flask(__name__)
 # Enable CORS for all routes
+app.jinja_env.filters['naturaltime'] = humanize.naturaltime
+app.jinja_env.filters['naturaldate'] = humanize.naturaldate
+
 CORS(app)
 
 app.secret_key = "AI"
@@ -37,10 +41,11 @@ Admin = Base.classes.admins
 User = Base.classes.users
 Prompt = Base.classes.prompts
 Notification = Base.classes.notifications
+Journal = Base.classes.journal_entries
+JournalClassifier = Base.classes.journal_classifiers
+MoodMetric = Base.classes.mood_metrics
+
 print(Base.classes.keys())  # Debugging
-
-
-
 
 class JournalAnalyzer:
     """Singleton class to handle journal entry analysis operations"""
@@ -119,7 +124,7 @@ def get_analyzer():
 # Initialize analyzer outside of route handlers
 analyzer = get_analyzer()
 
-@app.route("/analyze", methods=["POST"])
+@app.route('/analyze', methods=["POST"])
 def analyze_journal():
     """Endpoint to analyze journal entries"""
     try:
@@ -152,12 +157,12 @@ def analyze_journal():
         logger.error(f"Error processing request: {str(e)}")
         return jsonify({"error": "Internal server error"}), 500
 
-@app.route("/health", methods=["GET"])
+@app.route('/health', methods=["GET"])
 def health_check():
     return jsonify({"status": "healthy"}), 200
 
 # Admin Dashboard : 
-@app.route("/", methods=["GET", "POST"])
+@app.route('/', methods=["GET", "POST"])
 def index():
     if request.method != 'POST':
         return render_template('login.html')
@@ -222,7 +227,100 @@ def users():
         sort_by=sort_by,
         order=order
     )
+@app.route('/user/edit/<int:id>', methods=['GET'])
+def edit_user(id):
+    if 'admin' not in session:
+        return redirect(url_for('index'))
 
+    if user := db.session.query(User).filter_by(id=id).first():
+        return render_template('edit_user.html', user=user)
+    else:
+        return "User not found", 404
+@app.route('/user/delete/<int:id>', methods=['GET'])
+def delete_user(id):
+    if 'admin' not in session:
+        return redirect(url_for('index'))
+
+    # Get user details
+    user = db.session.query(User).filter_by(id=id).first()
+
+    if not user:
+        return "User not found", 404
+
+    # Delete user
+    db.session.delete(user)
+    db.session.commit()
+
+    return redirect(url_for('users'))
+
+@app.route('/user/<int:id>', methods=['GET'])
+def user_details(id):
+    if 'admin' not in session:
+        return redirect(url_for('index'))
+
+    # Get user details
+    user = db.session.query(User).filter_by(id=id).first()
+
+    if not user:
+        return "User not found", 404
+
+    # Pagination parameters
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 10, type=int)
+    offset = (page - 1) * per_page
+
+    # Get all journals by user id and COUNT them
+    journal_query = db.session.query(Journal).filter_by(user_id=id).order_by(Journal.created_at.desc())
+    total_journals = journal_query.count()
+    journals = journal_query.limit(per_page).offset(offset).all()
+
+    # Calculate total pages for journals
+    total_journal_pages = (total_journals + per_page - 1) // per_page
+
+    # Get the category (classifier) the user has written most in
+    most_used_classifier = (
+        db.session.query(JournalClassifier.classifier, db.func.count(JournalClassifier.classifier).label('count'))
+        .filter_by(user_id=id)
+        .group_by(JournalClassifier.classifier)
+        .order_by(db.desc('count'))
+        .first()
+    )
+
+    # Get the mood distribution of the user
+    mood_distribution = (
+        db.session.query(Journal.mood, db.func.count(Journal.mood).label('count'))
+        .filter_by(user_id=id)
+        .group_by(Journal.mood)
+        .order_by(db.desc('count'))
+        .all()
+    )
+
+    # Get mood metrics over time for the last 7 days
+    seven_days_ago = datetime.now() - timedelta(days=7)
+    mood_metrics = (
+        db.session.query(
+            cast(MoodMetric.recorded_date, Date).label('recorded_date'),
+            MoodMetric.mood,
+            func.sum(MoodMetric.count).label('count')
+        )
+        .filter_by(user_id=id)
+        .filter(MoodMetric.recorded_date >= seven_days_ago)
+        .group_by('recorded_date', MoodMetric.mood)
+        .order_by(text('recorded_date DESC'))
+        .all()
+    )
+
+    return render_template(
+        'user_details.html',
+        user=user,
+        journals=journals,
+        most_used_classifier=most_used_classifier,
+        mood_distribution=mood_distribution,
+        mood_metrics=mood_metrics,
+        page=page,
+        per_page=per_page,
+        total_journal_pages=total_journal_pages  # Pass the total pages to the template
+    )
 
 @app.route('/prompts', methods=['GET'])
 def list_prompts():
@@ -386,7 +484,7 @@ def notification():
             Notification.id,
             Notification.title,
             Notification.message,
-            func.group_concat(Notification.user_id.op('ORDER BY')(Notification.user_id)).label("users"),
+            # func.group_concat(Notification.user_id.op('ORDER BY')(Notification.user_id)).label("users"),
             Notification.created_at,
         )
         .group_by(Notification.title, Notification.message)
