@@ -20,6 +20,44 @@
 			
 		</div>
 	</div>
+    {% with success = get_flashed_messages(category_filter=["success"]) %}
+    {% if success %}
+    <div
+        class="flex bg-white dark:bg-gray-900 items-center px-6 py-4 text-sm border-t-2 rounded-b shadow-sm border-green-500">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-green-500 stroke-current" fill="none"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <div class="ml-3">
+            <div class="font-bold text-left text-black dark:text-gray-50">
+                {% for msg in success %}
+                <p>{{ msg }}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+    {% with errors = get_flashed_messages(category_filter=["error"]) %}
+    {% if errors %}
+    <div
+    class="flex bg-white dark:bg-gray-900 items-center px-6 py-4 text-sm border-t-2 rounded-b shadow-sm border-red-500">
+    <svg viewBox="0 0 24 24" class="w-8 h-8 text-red-500 stroke-current" fill="none"
+    xmlns="http://www.w3.org/2000/svg">
+        <path
+            d="M12 8V12V8ZM12 16H12.01H12ZM21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+        <div class="ml-3">
+            <div class="font-bold text-left text-black dark:text-gray-50">
+                {% for msg in errors %}
+                <p>{{ msg }}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endwith %}
 	<div class="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-700 shadow-sm">
 		<table class="min-w-full divide-y divide-zinc-200 dark:divide-zinc-700">
 			<thead class="bg-zinc-50 dark:bg-zinc-800">
@@ -44,7 +82,16 @@
 					<td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400"><a href="{{ url_for('user_details', id=user.id) }}">{{ user.username }}</a></td>
           <td class="px-6 py-4 whitespace-nowrap text-sm text-zinc-500 dark:text-zinc-400">{{ user.email }}</td>
 					<td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-						<a href="/delete_user/{{ user.id }}" class="text-green-600 hover:text-green-900 dark:text-green-500 dark:hover:text-green-400 transition duration-150 ease-in-out">Delete</a>
+						<!-- <form method="POST" action="{{ url_for('delete_user', id=user.id) }}" class="inline" onsubmit="return confirmDelete(event)">
+                <button type="submit" class="text-green-600 hover:text-green-900 dark:text-green-500 dark:hover:text-green-400 transition duration-150 ease-in-out">
+                    <i class="fas fa-trash-alt"></i> Delete
+                </button>
+            </form> -->
+            <button onclick="openDeleteModal({{ user.id }})"
+						    class="text-green-600 hover:text-green-900 dark:text-green-500 cursor-pointer dark:hover:text-green-400 transition duration-150 ease-in-out">
+						    <i class="fas fa-trash-alt"></i> Delete
+						</button>
+
 					</td>
 				</tr>
           {% endfor %}
@@ -66,4 +113,49 @@
   
 </div>
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
+    <div class="w-full md:w-1/3 mx-auto">
+        <div class="flex flex-col p-5 rounded-lg shadow bg-white dark:bg-zinc-900">
+        <div class="flex">
+          <div>
+              <svg class="w-6 h-6 fill-current text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                  <path d="M0 0h24v24H0V0z" fill="none"/>
+                  <path d="M12 5.99L19.53 19H4.47L12 5.99M12 2L1 21h22L12 2zm1 14h-2v2h2v-2zm0-6h-2v4h2v-4z"/>
+              </svg>
+          </div>
+          <div class="ml-3">
+              <h2 class="font-semibold text-slate-500">Confirm Deletion</h2>
+              <p class="mt-2 text-sm text-slate-600 leading-relaxed">Are you sure you want to delete this user? This action cannot be undone.</p>
+          </div>
+      </div>
+        <form id="deleteForm" method="POST">
+            <div class="flex justify-end space-x-2">
+                <button type="button" onclick="closeDeleteModal()" class="px-4 py-2 bg-gray-500 text-white rounded cursor-pointer">Cancel</button>
+                <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded cursor-pointer">Delete</button>
+            </div>
+        </form>
+    </div>
+  </div>
+</div>
+
+{% block JSscript %}
+    <script type="text/javascript">
+        // function confirmDelete(event) {
+        //     if (!confirm("Are you sure you want to delete this user? This action cannot be undone. WARNING: All records related to this user will be deleted!")) {
+        //         event.preventDefault(); // Prevent form submission if user cancels
+        //     }
+        // }
+
+      function openDeleteModal(userId) {
+        document.getElementById('deleteForm').action = `/user/delete/${userId}`;
+        document.getElementById('deleteModal').classList.remove('hidden');
+    	}
+
+    	function closeDeleteModal() {
+        document.getElementById('deleteModal').classList.add('hidden');
+    	}
+    </script>
+{%  endblock %}
 {% endblock %}

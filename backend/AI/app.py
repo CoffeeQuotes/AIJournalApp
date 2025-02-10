@@ -44,6 +44,7 @@ Notification = Base.classes.notifications
 Journal = Base.classes.journal_entries
 JournalClassifier = Base.classes.journal_classifiers
 MoodMetric = Base.classes.mood_metrics
+Setting = Base.classes.settings
 
 print(Base.classes.keys())  # Debugging
 
@@ -227,31 +228,71 @@ def users():
         sort_by=sort_by,
         order=order
     )
-@app.route('/user/edit/<int:id>', methods=['GET'])
+
+@app.route('/user/edit/<int:id>', methods=['GET', 'POST'])
 def edit_user(id):
     if 'admin' not in session:
         return redirect(url_for('index'))
-
-    if user := db.session.query(User).filter_by(id=id).first():
-        return render_template('edit_user.html', user=user)
-    else:
-        return "User not found", 404
-@app.route('/user/delete/<int:id>', methods=['GET'])
-def delete_user(id):
-    if 'admin' not in session:
-        return redirect(url_for('index'))
-
-    # Get user details
+    
     user = db.session.query(User).filter_by(id=id).first()
-
     if not user:
         return "User not found", 404
 
-    # Delete user
-    db.session.delete(user)
-    db.session.commit()
+    setting = db.session.query(Setting).filter_by(user_id=id).first()
+    
+    if request.method == 'POST':
+        theme = request.form.get('theme', '').strip()
+        notification = request.form.get('notification', '').strip()
+        language = request.form.get('language', '').strip()
+
+        if not theme or not notification or not language:
+            flash("Please fill in all fields", "error")
+            return redirect(url_for('edit_user', id=id))
+
+        if not setting:
+            # If no existing setting, create a new one
+            setting = Setting(user_id=id, theme=theme, notification=notification, language=language)
+            db.session.add(setting)
+        else:
+            # Update existing settings
+            setting.theme = theme
+            setting.notification = notification
+            setting.language = language
+
+        db.session.commit()
+        flash("Settings updated successfully", "success")
+        return redirect(url_for('edit_user', id=id))
+
+    return render_template('edit_user.html', user=user, setting=setting)
+
+@app.route('/user/delete/<int:id>', methods=['POST'])
+def delete_user(id):
+    if 'admin' not in session:
+        flash("Unauthorized access", "error")
+        return redirect(url_for('index'))
+
+    user = db.session.query(User).filter_by(id=id).first()
+
+    if not user:
+        flash("User not found", "error")
+        return redirect(url_for('users'))
+
+    try:
+        # Delete related records only if they exist
+        for model in [Setting, JournalClassifier, MoodMetric, Notification, Journal]:
+            db.session.query(model).filter_by(user_id=id).delete(synchronize_session=False)
+
+        # Delete the user
+        db.session.delete(user)
+        db.session.commit()
+        
+        flash("User deleted successfully", "success")
+    except Exception as e:
+        db.session.rollback()
+        flash(f"Error deleting user: {str(e)}", "error")
 
     return redirect(url_for('users'))
+
 
 @app.route('/user/<int:id>', methods=['GET'])
 def user_details(id):
