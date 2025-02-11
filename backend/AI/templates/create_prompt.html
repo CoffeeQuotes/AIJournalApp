@@ -18,10 +18,47 @@
 {% block content %}
 
 <div class="container mx-auto py-10">
-    <div class="flex justify-between items-center mb-4">
-        <h1 class="text-3xl text-emerald-500 font-bold">Prompts</h1>
+    <div class="flex mt-20 justify-between items-center mb-4">
+        <h1 class="text-3xl text-zinc-50 font-bold">Prompts</h1>
     </div>
-
+    {% with success = get_flashed_messages(category_filter=["success"]) %}
+    {% if success %}
+    <div
+        class="flex bg-white dark:bg-gray-900 items-center px-6 py-4 text-sm border-t-2 rounded-b shadow-sm border-green-500">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 text-green-500 stroke-current" fill="none"
+            viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+        </svg>
+        <div class="ml-3">
+            <div class="font-bold text-left text-black dark:text-gray-50">
+                {% for msg in success %}
+                <p>{{ msg }}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endwith %}
+    {% with errors = get_flashed_messages(category_filter=["error"]) %}
+    {% if errors %}
+    <div
+    class="flex bg-white dark:bg-gray-900 items-center px-6 py-4 text-sm border-t-2 rounded-b shadow-sm border-red-500">
+    <svg viewBox="0 0 24 24" class="w-8 h-8 text-red-500 stroke-current" fill="none"
+    xmlns="http://www.w3.org/2000/svg">
+        <path
+            d="M12 8V12V8ZM12 16H12.01H12ZM21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+        <div class="ml-3">
+            <div class="font-bold text-left text-black dark:text-gray-50">
+                {% for msg in errors %}
+                <p>{{ msg }}</p>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endwith %}
     <!-- Form Section -->
     <div class="bg-white dark:bg-zinc-900 p-6 rounded-lg shadow-md border border-zinc-200 dark:border-zinc-700">
         <form method="POST" class="space-y-4">
@@ -61,9 +98,9 @@
             <div class="text-right">
                 <button 
                     type="submit" 
-                    class="bg-emerald-600 dark:bg-emerald-700 hover:bg-emerald-700 dark:hover:bg-emerald-800 text-white font-semibold px-4 py-2 rounded-lg transition duration-200"
-                >
-                    Create Prompt
+                    class="inline-flex items-center px-4 py-1 border border-transparent text-sm font-medium rounded-sm shadow-sm text-zinc-900 font-semibold bg-white hover:bg-zinc-900 hover:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 cursor-pointer"
+                > 
+                    Create Prompt &nbsp;<i class="fa-regular fa-square-plus"></i>
                 </button>
             </div>
 

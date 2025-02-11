@@ -17,7 +17,7 @@
 <div class="container mx-auto py-10">
 
     <!-- User Profile Header -->
-    <div class="md:flex md:justify-between md:items-center mb-6 p-4 rounded-md shadow-md bg-white dark:bg-zinc-800 dark:text-zinc-50">
+    <div class="md:flex mt-20 md:justify-between md:items-center mb-6 p-4 rounded-md shadow-md bg-white dark:bg-zinc-800 dark:text-zinc-50">
         <div>
             <h1 class="text-3xl text-emerald-600 font-semibold mb-2">{{ user.username.capitalize() }}</h1>
             <p class="text-sm text-zinc-500 dark:text-zinc-400">
@@ -29,8 +29,8 @@
         <div class="mt-4 md:mt-0 flex space-x-2">
             <!-- Edit User Form -->
             <form method="GET" action="{{ url_for('edit_user', id=user.id) }}" class="inline">  <!-- Replace 'edit_user' with your edit route -->
-                <button type="submit" class="bg-zinc-700 hover:bg-zinc-900 text-emerald-600 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline mr-2 cursor-pointer">
-                    <i class="fas fa-edit"></i> Edit
+                <button type="submit" class="inline-flex items-center px-4 py-1 border border-transparent text-sm font-medium rounded-sm shadow-sm text-zinc-900 font-semibold bg-white hover:bg-zinc-900 hover:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 cursor-pointer">
+                    Edit &nbsp;<i class="fas fa-edit"></i> 
                 </button>
             </form>
             <!-- Delete User Form -->
@@ -39,8 +39,8 @@
                     <i class="fas fa-trash-alt"></i> Delete
                 </button>
             </form>-->
-            <button onclick="showDeleteModal()" class="bg-zinc-700 hover:bg-zinc-900 text-rose-600 font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline cursor-pointer">
-                <i class="fas fa-trash-alt"></i> Delete
+            <button onclick="showDeleteModal()" class="inline-flex items-center px-4 py-1 border border-transparent text-sm font-medium rounded-sm shadow-sm text-zinc-900 font-semibold bg-white hover:bg-zinc-900 hover:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 cursor-pointer">Delete &nbsp;
+                <i class="fas fa-trash-alt"></i> 
             </button>
 
         </div>

@@ -11,41 +11,44 @@
     {% include 'partials/navbar.html' %}
 {% endblock %}
 {% block content %}
-<div class="container p-12 flex flex-col justify-center items-center">    
-    <div>
-        <h1 class="text-2xl text-emerald-800 text-center">Admin Login</h1>
-        <p class="text-sm text-slate-600">
-            Please enter your admin details 
-        </p>
+<div class="flex h-screen items-center justify-center">    
+    <div class="md:w-1/3">
+        <div class="">
+            <h1 class="text-4xl font-display antialiased text-zinc-50">Sign In</h1>
+            <p class="text-sm text-slate-50">
+                Please enter your admin details 
+            </p>
+        </div>
+        <form method="POST">
+            <div class="mt-4">
+                <label for="username" class="block font-medium dark:text-gray-50">
+                    Username
+                </label>
+                <div class="mt-1">
+                    <input type="text" name="username" id="username" 
+                        class="shadow-sm focus:ring-emerald-500 focus:border-emerald-500 block w-full sm:text-sm border-gray-300 rounded-md text-gray-900 bg-white placeholder-gray-500 dark:bg-black dark:text-slate-600 p-2" 
+                        placeholder="Enter your username" />
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <label for="password" class="block font-medium dark:text-gray-50">
+                    Password
+                </label>
+                <div class="mt-1">
+                    <input type="password" name="password" id="password" 
+                        class="shadow-sm focus:ring-emerald-500 focus:border-emerald-500 block w-full sm:text-sm border-gray-300 rounded-md text-gray-900 bg-white placeholder-gray-500 dark:bg-black dark:text-slate-600 p-2" 
+                        placeholder="Enter your password" />
+                </div>
+            </div>
+            
+            <div class="mt-4">
+                <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-sm shadow-sm text-zinc-900 font-semibold bg-white hover:bg-zinc-900 hover:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 cursor-pointer">
+                    Login
+                        <i class="fa-solid fa-right-to-bracket m-1"></i>
+                </button>
+            </div>
+        </form>
     </div>
-    <form method="POST">
-        <div class="mt-4">
-            <label for="username" class="block text-sm font-medium text-gray-700">
-                Username
-            </label>
-            <div class="mt-1">
-                <input type="text" name="username" id="username" 
-                    class="shadow-sm focus:ring-emerald-500 focus:border-emerald-500 block w-full sm:text-sm border-gray-300 rounded-md text-gray-900 bg-white placeholder-gray-500 dark:bg-black dark:text-slate-600 p-2" 
-                    placeholder="Enter your username" />
-            </div>
-        </div>
-        
-        <div class="mt-4">
-            <label for="password" class="block text-sm font-medium text-gray-700">
-                Password
-            </label>
-            <div class="mt-1">
-                <input type="password" name="password" id="password" 
-                    class="shadow-sm focus:ring-emerald-500 focus:border-emerald-500 block w-full sm:text-sm border-gray-300 rounded-md text-gray-900 bg-white placeholder-gray-500 dark:bg-black dark:text-slate-600 p-2" 
-                    placeholder="Enter your password" />
-            </div>
-        </div>
-        
-        <div class="mt-4">
-            <button type="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 cursor-pointer">
-                Login
-            </button>
-        </div>
-    </form>
 </div>
 {% endblock %}

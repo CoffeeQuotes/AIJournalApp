@@ -1,12 +1,13 @@
-<header>
-    <div class="flex flex-col md:flex-row justify-between py-6 px-4 bg-transparent backdrop-blur-m">
-        <h1 class="text-emerald-600 text-2xl"> NotesApp - Admin </h1>
+<header class="fixed w-full">
+    <div id="authnavbar" class="box-border flex shrink-0 pointer-events-auto
+ flex-col md:flex-row justify-between py-6 px-4 bg-transparent backdrop-blur-2xl gap-[0.25rem] m-5 rounded-lg">
+        <h1 class="text-zinc-50 text-xl font-bold"><i class="fa-solid fa-note-sticky"></i> NotesApp </h1>
         <nav class="flex md:flex-row flex-col gap-2">
-            <a class="text-emerald-900 py-1 font-bold" href="/dashboard">Dashboard</a>
-            <a class="text-emerald-900 py-1 font-bold" href="/users">Users</a>
-            <a class="text-emerald-900 py-1 font-bold" href="/prompts">Prompts</a>
-            <a class="text-emerald-900 py-1 font-bold" href="/notification">Notification</a>
-            <a class="text-emerald-900 py-1 font-bold bg-zinc-900 border-2 px-2 rounded-md hover:bg-emerald-900 hover:text-white transition-all duration-600 hover:border-white" href="/logout">Logout</a>
+            <a class="text-zinc-50 py-1 font-bold" href="/dashboard">Dashboard</a>
+            <a class="text-zinc-50 py-1 font-bold" href="/users">Users</a>
+            <a class="text-zinc-50 py-1 font-bold" href="/prompts">Prompts</a>
+            <a class="text-zinc-50 py-1 font-bold" href="/notification">Notification</a>
+            <a class="inline-flex items-center px-4 py-1 border border-transparent text-sm font-medium rounded-sm shadow-sm text-zinc-900 font-semibold bg-white hover:bg-zinc-900 hover:text-zinc-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-zinc-500 cursor-pointer" href="/logout">Logout <i class="fa-solid fa-right-from-bracket m-1"></i></a>
         </nav>
     </div>
 </header>
